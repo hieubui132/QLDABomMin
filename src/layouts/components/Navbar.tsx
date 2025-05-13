@@ -47,7 +47,7 @@ const Navbar: React.FC = () => {
         defaultOpenKeys={["sub1"]}
         mode="inline"
         items={items}
-        // theme="dark"
+        theme="dark"
       />
     </div>
   );

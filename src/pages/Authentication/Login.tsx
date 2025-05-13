@@ -24,7 +24,7 @@ export default function Login() {
     setIsLoading(true); // Bắt đầu loading
     try {
       console.log("Đăng nhập với dữ liệu:", data);
-      navigate("/"); // Điều hướng đến trang chính sau khi đăng nhập thành công
+      navigate("/dashboard"); // Điều hướng đến trang chính sau khi đăng nhập thành công
     } catch (error) {
       console.error("Đăng nhập thất bại", error);
     } finally {

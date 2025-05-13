@@ -1,6 +1,7 @@
 // Layouts
 import NonAuthLayout from "@/layouts/NonAuthLayout";
 import DashboardLayout from "@/layouts/DashboardLayout";
+import DefaultLayout from "@/layouts/DefaultLayout";
 // Pages
 import Login from "@/pages/Authentication/Login";
 import Dashboard from "@/pages/Dashboard";
@@ -25,6 +26,7 @@ const privateRoutes: Route[] = [
   {
     path: "/projects/:projectId",
     component: Projects,
+    layout: DefaultLayout,
   },
 ];
 

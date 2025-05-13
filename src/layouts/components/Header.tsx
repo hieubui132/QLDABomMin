@@ -1,5 +1,5 @@
 import logo from "@/assets/images/Logo-Tong-Cong-Ty-319.png";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   MailOutlined,
   SettingOutlined,
@@ -11,14 +11,14 @@ import type { MenuProps } from "antd";
 import { Menu, Badge, Space, Dropdown } from "antd";
 import NotifyItem from "@/components/common/NotifyItem";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
 const menuItems: MenuItem[] = [
   {
-    label: <Link to="/dashboard">Dashboard</Link>,
-    key: "Dashboard",
+    label: <Link to={"/dashboard"}>Dashboard</Link>,
+    key: "/dashboard",
     icon: <MailOutlined />,
   },
   {
@@ -27,12 +27,18 @@ const menuItems: MenuItem[] = [
     icon: <SettingOutlined />,
     children: [
       {
-        label: <Link to="/projects/project1">Item 1</Link>,
-        key: "Project1",
-      },
-      {
-        label: "Item 2",
-        key: "Project2",
+        type: "group",
+        label: "Item 1",
+        children: [
+          {
+            label: <Link to={"/projects/project1"}>project 1</Link>,
+            key: "/projects/project1",
+          },
+          {
+            label: <Link to={"/projects/project2"}>project 2</Link>,
+            key: "/projects/project2",
+          },
+        ],
       },
     ],
   },
@@ -67,11 +73,16 @@ const profileItems: MenuProps["items"] = [
 ];
 
 export default function Header() {
-  const [current, setCurrent] = useState("Dashboard");
+  const [selectedKeys, setSelectedKeys] = useState(["mail"]);
+  const location = useLocation();
 
   const onClick: MenuProps["onClick"] = (e) => {
-    setCurrent(e.key);
+    setSelectedKeys([e.key]);
   };
+
+  useEffect(() => {
+    setSelectedKeys([location.pathname]);
+  }, [location.pathname]);
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-[#edf4f0] shadow-md z-900 h-[50px]">
@@ -83,7 +94,7 @@ export default function Header() {
           <div className="flex-1">
             <Menu
               onClick={onClick}
-              selectedKeys={[current]}
+              selectedKeys={selectedKeys}
               mode="horizontal"
               items={menuItems}
               style={{
