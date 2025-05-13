@@ -1,0 +1,9 @@
+import React from "react";
+
+export default function NonAuthLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <React.Fragment>{children}</React.Fragment>;
+}

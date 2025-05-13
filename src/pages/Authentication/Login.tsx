@@ -2,6 +2,7 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 type Inputs = {
   email: string;
@@ -15,6 +16,7 @@ export default function Login() {
     formState: { errors },
   } = useForm<Inputs>();
 
+  const navigate = useNavigate(); // Hook để điều hướng
   const [showPassword, setShowPassword] = useState(false); // Trạng thái hiển thị mật khẩu
   const [isLoading, setIsLoading] = useState(false); // Trạng thái loading
 
@@ -22,6 +24,7 @@ export default function Login() {
     setIsLoading(true); // Bắt đầu loading
     try {
       console.log("Đăng nhập với dữ liệu:", data);
+      navigate("/"); // Điều hướng đến trang chính sau khi đăng nhập thành công
     } catch (error) {
       console.error("Đăng nhập thất bại", error);
     } finally {
@@ -31,7 +34,7 @@ export default function Login() {
 
   return (
     <>
-      <div className="flex min-h-screen flex-1 flex-col items-center justify-center px-6 py-12 lg:px-8 bg-gray-300">
+      <div className="flex min-h-screen flex-1 flex-col items-center justify-center px-6 py-12 lg:px-8 bg-gray-200">
         <div className="container mx-auto max-w-xl bg-white rounded-lg">
           <div className="sm:mx-auto sm:w-full sm:max-w-sm">
             {/* <img
