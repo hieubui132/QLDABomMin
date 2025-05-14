@@ -11,8 +11,16 @@ export default function DefaultLayout({
     <React.Fragment>
       <Header />
       <Navbar />
-      {/* Main content */}
-      {children}
+      <main
+        style={{
+          marginTop: "50px",
+          marginLeft: "260px",
+          padding: "20px",
+          overflowX: "hidden",
+        }}
+      >
+        {children}
+      </main>
     </React.Fragment>
   );
 }

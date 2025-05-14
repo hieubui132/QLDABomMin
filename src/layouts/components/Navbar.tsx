@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   HomeOutlined,
   PlusOutlined,
@@ -34,8 +34,10 @@ const items: MenuItem[] = [
 ];
 
 const Navbar: React.FC = () => {
+  const [selectedKeys, setSelectedKeys] = useState<string[]>(["Home"]);
+
   const onClick: MenuProps["onClick"] = (e) => {
-    console.log("click ", e);
+    setSelectedKeys([e.key]);
   };
 
   return (
@@ -43,8 +45,7 @@ const Navbar: React.FC = () => {
       <Menu
         onClick={onClick}
         style={{ width: 260, height: "100%" }}
-        defaultSelectedKeys={["1"]}
-        defaultOpenKeys={["sub1"]}
+        selectedKeys={selectedKeys}
         mode="inline"
         items={items}
         theme="dark"

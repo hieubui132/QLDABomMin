@@ -9,7 +9,15 @@ export default function DashboardLayout({
   return (
     <React.Fragment>
       <Header />
-      {children}
+      <main
+        style={{
+          marginTop: "50px",
+          padding: "20px",
+          overflowX: "hidden",
+        }}
+      >
+        {children}
+      </main>
     </React.Fragment>
   );
 }
