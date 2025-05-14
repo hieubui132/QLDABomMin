@@ -6,7 +6,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   return (
     <Row gutter={20}>
-      <Col xxl={12}>
+      <Col xxl={12} xs={24}>
         <h2 className="text-xl mb-2">
           <strong>Projects</strong>
         </h2>
@@ -25,7 +25,7 @@ const Dashboard = () => {
           </Card>
         </div>
       </Col>
-      <Col xxl={12}>
+      <Col xxl={12} xs={24}>
         <h2 className="text-xl mb-2">
           <strong>Recent Updates</strong>
         </h2>

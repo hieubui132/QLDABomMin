@@ -6,6 +6,7 @@ import DefaultLayout from "@/layouts/DefaultLayout";
 import Login from "@/pages/Authentication/Login";
 import Dashboard from "@/pages/Dashboard";
 import Projects from "@/pages/Projects";
+import AddIssue from "@/pages/AddIssue";
 
 //Other
 import { type ComponentType } from "react";
@@ -27,6 +28,10 @@ const privateRoutes: Route[] = [
     path: "/projects/:projectId",
     component: Projects,
     layout: DefaultLayout,
+  },
+  {
+    path: "/projects/:projectId/add",
+    component: AddIssue,
   },
 ];
 

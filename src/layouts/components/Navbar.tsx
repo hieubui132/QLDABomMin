@@ -7,6 +7,7 @@ import {
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Menu } from "antd";
+import { Link } from "react-router-dom";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -18,7 +19,7 @@ const items: MenuItem[] = [
   },
   {
     key: "AddIssue",
-    label: "Add Issue",
+    label: <Link to={"/projects/project1/add"}>Add Issue</Link>,
     icon: <PlusOutlined />,
   },
   {
