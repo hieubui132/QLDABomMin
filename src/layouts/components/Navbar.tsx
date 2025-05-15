@@ -19,12 +19,12 @@ const items: MenuItem[] = [
   },
   {
     key: "AddIssue",
-    label: <Link to={"/projects/project1/add"}>Add Issue</Link>,
+    label: <Link to={"/projects/project1/add-issue"}>Add Issue</Link>,
     icon: <PlusOutlined />,
   },
   {
     key: "Issues",
-    label: "Issues",
+    label: <Link to={"/projects/project1/issues"}>Issues</Link>,
     icon: <UnorderedListOutlined />,
   },
   {

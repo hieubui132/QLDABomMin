@@ -5,8 +5,9 @@ import DefaultLayout from "@/layouts/DefaultLayout";
 // Pages
 import Login from "@/pages/Authentication/Login";
 import Dashboard from "@/pages/Dashboard";
-import Projects from "@/pages/Projects";
+import Home from "@/pages/Home";
 import AddIssue from "@/pages/AddIssue";
+import Issues from "@/pages/Issues";
 
 //Other
 import { type ComponentType } from "react";
@@ -26,12 +27,23 @@ const privateRoutes: Route[] = [
   },
   {
     path: "/projects/:projectId",
-    component: Projects,
+    component: Home,
     layout: DefaultLayout,
   },
   {
-    path: "/projects/:projectId/add",
+    path: "/projects/:projectId/add-issue",
     component: AddIssue,
+  },
+  {
+    path: "/projects/:projectId/issues",
+    component: Issues,
+  },
+
+  //tất cả route không match với bên trên
+  {
+    path: "*",
+    component: Dashboard,
+    layout: DashboardLayout,
   },
 ];
 

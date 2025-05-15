@@ -12,6 +12,7 @@ import { Menu, Badge, Space, Dropdown } from "antd";
 import NotifyItem from "@/components/common/NotifyItem";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -66,7 +67,7 @@ const profileItems: MenuProps["items"] = [
     icon: <SettingOutlined />,
   },
   {
-    key: "5",
+    key: "Signout",
     label: "Sign out",
     icon: <LogoutOutlined />,
   },
@@ -75,14 +76,22 @@ const profileItems: MenuProps["items"] = [
 export default function Header() {
   const [selectedKeys, setSelectedKeys] = useState(["mail"]);
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const onClick: MenuProps["onClick"] = (e) => {
+  const onMenuClick: MenuProps["onClick"] = (e) => {
     setSelectedKeys([e.key]);
   };
 
   useEffect(() => {
     setSelectedKeys([location.pathname]);
   }, [location.pathname]);
+
+  const handleProfileClick: MenuProps["onClick"] = (e) => {
+    if (e.key === "Signout") {
+      localStorage.removeItem("Token");
+      navigate("/login");
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-[#edf4f0] shadow-md z-900 h-[50px]">
@@ -93,7 +102,7 @@ export default function Header() {
         <div className="flex flex-1 justify-between items-center">
           <div className="flex-1">
             <Menu
-              onClick={onClick}
+              onClick={onMenuClick}
               selectedKeys={selectedKeys}
               mode="horizontal"
               items={menuItems}
@@ -130,7 +139,7 @@ export default function Header() {
                 </div>
               </Dropdown>
               <Dropdown
-                menu={{ items: profileItems }}
+                menu={{ items: profileItems, onClick: handleProfileClick }}
                 placement="bottomRight"
                 trigger={["click"]}
               >

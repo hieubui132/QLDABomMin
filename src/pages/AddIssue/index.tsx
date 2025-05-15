@@ -15,6 +15,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import JoditEditor from "jodit-react";
 import { InboxOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
+import { statusOptions } from "@/constants/selectOption";
 
 const { Dragger } = Upload;
 
@@ -94,44 +95,17 @@ export default function AddIssue() {
                   wrapperCol={{ span: 8 }}
                 >
                   <Select
-                    options={[
-                      {
+                    options={statusOptions.map((item) => {
+                      return {
                         label: (
                           <>
-                            <Badge status="warning" />
-                            <span className="ml-2">Open</span>
+                            <Badge status={item.badgeStatus} />
+                            <span className="ml-2">{item.label}</span>
                           </>
                         ),
-                        value: "Open",
-                      },
-                      {
-                        label: (
-                          <>
-                            <Badge status="processing" />
-                            <span className="ml-2">In Progress</span>
-                          </>
-                        ),
-                        value: "In Progress",
-                      },
-                      {
-                        label: (
-                          <>
-                            <Badge status="success" />
-                            <span className="ml-2">Resolved</span>
-                          </>
-                        ),
-                        value: "Resolved",
-                      },
-                      {
-                        label: (
-                          <>
-                            <Badge status="error" />
-                            <span className="ml-2">Closed</span>
-                          </>
-                        ),
-                        value: "Closed",
-                      },
-                    ]}
+                        value: item.value,
+                      };
+                    })}
                   />
                 </Form.Item>
                 <Form.Item
@@ -141,7 +115,7 @@ export default function AddIssue() {
                   labelCol={{ span: 8 }}
                   wrapperCol={{ span: 8 }}
                 >
-                  <Select />
+                  <Select placeholder="Select category" />
                 </Form.Item>
               </Col>
               <Col xxl={12} xs={24}>
@@ -152,7 +126,7 @@ export default function AddIssue() {
                   labelCol={{ span: 8 }}
                   wrapperCol={{ span: 8 }}
                 >
-                  <Select />
+                  <Select placeholder="Select assignee" />
                 </Form.Item>
                 <Form.Item
                   name={"DueDate"}
@@ -185,7 +159,7 @@ export default function AddIssue() {
             </p> */}
           </Dragger>
         </Form.Item>
-        <Form.Item label="Notify:">
+        <Form.Item label="Notify comment to:">
           <Select mode="multiple" />
         </Form.Item>
         <div className="text-end">

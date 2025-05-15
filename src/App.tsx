@@ -1,6 +1,8 @@
 import { Fragment } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { publicRoutes, privateRoutes } from "@/routes/allRoutes";
+import AuthProtected from "./routes/AuthProtected";
+//layouts
 import DefaultLayout from "@/layouts/DefaultLayout";
 import NonAuthLayout from "@/layouts/NonAuthLayout";
 
@@ -21,11 +23,11 @@ function App() {
               key={index}
               path={route.path}
               element={
-                // <AuthProtected>
-                <Layout>
-                  <Page />
-                </Layout>
-                // </AuthProtected>
+                <AuthProtected>
+                  <Layout>
+                    <Page />
+                  </Layout>
+                </AuthProtected>
               }
             />
           );

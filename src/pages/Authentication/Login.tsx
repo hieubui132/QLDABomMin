@@ -24,6 +24,10 @@ export default function Login() {
     setIsLoading(true); // Bắt đầu loading
     try {
       console.log("Đăng nhập với dữ liệu:", data);
+      localStorage.setItem(
+        "Token",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InF1eWVucHQiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJxdXllbkBnbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoicXV5ZW5wdCIsIm5iZiI6MTc0NzI3NzUxOCwiZXhwIjoxNzQ3Mjg0NzE4LCJpc3MiOiJ2dGMtc3RhZ2luZy1zZXJ2aWNlIiwiYXVkIjoidnRjLXN0YWdpbmctc2VydmljZSJ9.DwUA9lJcLIGCwo_jwiHTyHoxgqFCcIJJJ8_hYw4VBJw"
+      );
       navigate("/dashboard"); // Điều hướng đến trang chính sau khi đăng nhập thành công
     } catch (error) {
       console.error("Đăng nhập thất bại", error);
@@ -101,6 +105,7 @@ export default function Login() {
                     <input
                       type={showPassword ? "text" : "password"}
                       placeholder="Nhập mật khẩu"
+                      autoComplete=""
                       {...register("password", {
                         required: "Mật khẩu là bắt buộc",
                         minLength: {
