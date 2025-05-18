@@ -9,22 +9,22 @@ interface OptionType {
 export const statusOptions: OptionType[] = [
   {
     badgeStatus: "warning",
-    label: "Open",
-    value: "Open",
+    label: "Mở",
+    value: "0",
   },
   {
     badgeStatus: "processing",
-    label: "In Progress",
-    value: "InProgress",
+    label: "Đang thực hiện",
+    value: "1",
   },
   {
     badgeStatus: "success",
-    label: "Resolved",
-    value: "Resolved",
+    label: "Hoàn thành",
+    value: "2",
   },
   {
     badgeStatus: "error",
-    label: "Closed",
-    value: "Closed",
+    label: "Đóng",
+    value: "3",
   },
 ];
