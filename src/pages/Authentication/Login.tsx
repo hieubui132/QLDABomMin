@@ -3,10 +3,12 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import * as callApi from "@/api/apiClient"; // Import các phương thức gọi API từ file config
+import { toast } from "react-toastify";
 
 type Inputs = {
-  email: string;
-  password: string;
+  userName: string;
+  passWord: string;
 };
 
 export default function Login() {
@@ -23,14 +25,16 @@ export default function Login() {
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setIsLoading(true); // Bắt đầu loading
     try {
-      console.log("Đăng nhập với dữ liệu:", data);
-      localStorage.setItem(
-        "Token",
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InF1eWVucHQiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJxdXllbkBnbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoicXV5ZW5wdCIsIm5iZiI6MTc0NzI3NzUxOCwiZXhwIjoxNzQ3Mjg0NzE4LCJpc3MiOiJ2dGMtc3RhZ2luZy1zZXJ2aWNlIiwiYXVkIjoidnRjLXN0YWdpbmctc2VydmljZSJ9.DwUA9lJcLIGCwo_jwiHTyHoxgqFCcIJJJ8_hYw4VBJw"
-      );
-      navigate("/dashboard"); // Điều hướng đến trang chính sau khi đăng nhập thành công
+      const response: any = await callApi.login(data); // Gọi API đăng nhập
+      if (response.isSuccessded) {
+        localStorage.setItem("authUser", JSON.stringify(response.data)); // Lưu thông tin người dùng vào localStorage
+        navigate("/dashboard"); // Điều hướng đến trang chính sau khi đăng nhập thành công
+      } else {
+        toast.error("Sai tên đăng nhập hoặc mật khẩu!"); // Hiển thị thông báo lỗi nếu đăng nhập thất bại
+      }
     } catch (error) {
-      console.error("Đăng nhập thất bại", error);
+      console.error("Đăng nhập thất bại!", error);
+      toast.error("Sai tên đăng nhập hoặc mật khẩu!");
     } finally {
       setIsLoading(false); // Kết thúc loading
     }
@@ -58,7 +62,7 @@ export default function Login() {
             >
               <div>
                 <label
-                  htmlFor="email"
+                  htmlFor="userName"
                   className="block text-sm/6 font-medium text-gray-900"
                 >
                   Email
@@ -67,7 +71,7 @@ export default function Login() {
                   <input
                     type="email"
                     placeholder="Nhập email"
-                    {...register("email", {
+                    {...register("userName", {
                       required: "Email là bắt buộc",
                       pattern: {
                         value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, // Regex kiểm tra định dạng email
@@ -76,9 +80,9 @@ export default function Login() {
                     })}
                     className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                   />
-                  {errors.email && (
+                  {errors.userName && (
                     <p className="text-red-500 text-sm mt-1">
-                      {errors.email.message}
+                      {errors.userName.message}
                     </p>
                   )}
                 </div>
@@ -86,7 +90,7 @@ export default function Login() {
               <div>
                 <div className="flex items-center justify-between">
                   <label
-                    htmlFor="password"
+                    htmlFor="passWord"
                     className="block text-sm/6 font-medium text-gray-900"
                   >
                     Mật khẩu
@@ -106,7 +110,7 @@ export default function Login() {
                       type={showPassword ? "text" : "password"}
                       placeholder="Nhập mật khẩu"
                       autoComplete=""
-                      {...register("password", {
+                      {...register("passWord", {
                         required: "Mật khẩu là bắt buộc",
                         minLength: {
                           value: 6,
@@ -123,9 +127,9 @@ export default function Login() {
                       {showPassword ? "🙈" : "👁️"}
                     </button>
                   </div>
-                  {errors.password && (
+                  {errors.passWord && (
                     <p className="text-red-500 text-sm mt-1">
-                      {errors.password.message}
+                      {errors.passWord.message}
                     </p>
                   )}
                 </div>

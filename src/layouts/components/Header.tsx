@@ -88,7 +88,7 @@ export default function Header() {
 
   const handleProfileClick: MenuProps["onClick"] = (e) => {
     if (e.key === "Signout") {
-      localStorage.removeItem("Token");
+      localStorage.clear();
       navigate("/login");
     }
   };
