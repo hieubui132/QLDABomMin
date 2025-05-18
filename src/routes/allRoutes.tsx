@@ -11,6 +11,7 @@ import Issues from "@/pages/Issues";
 
 //Other
 import { type ComponentType } from "react";
+import FileManager from "@/pages/FileManager";
 
 interface Route {
   path: string;
@@ -37,6 +38,10 @@ const privateRoutes: Route[] = [
   {
     path: "/projects/:projectId/issues",
     component: Issues,
+  },
+  {
+    path: "/projects/:projectId/file",
+    component: FileManager,
   },
 
   //tất cả route không match với bên trên

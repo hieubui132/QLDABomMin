@@ -29,7 +29,7 @@ const items: MenuItem[] = [
   },
   {
     key: "Files",
-    label: "Files",
+    label: <Link to={"/projects/project1/file"}>Files</Link>,
     icon: <FolderOutlined />,
   },
 ];
