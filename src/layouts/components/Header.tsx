@@ -23,23 +23,17 @@ const menuItems: MenuItem[] = [
     icon: <MailOutlined />,
   },
   {
-    label: "Projects",
+    label: "Dự án",
     key: "Projects",
     icon: <SettingOutlined />,
     children: [
       {
-        type: "group",
-        label: "Item 1",
-        children: [
-          {
-            label: <Link to={"/projects/project1"}>project 1</Link>,
-            key: "/projects/project1",
-          },
-          {
-            label: <Link to={"/projects/project2"}>project 2</Link>,
-            key: "/projects/project2",
-          },
-        ],
+        label: <Link to={"/projects/project1"}>project 1</Link>,
+        key: "/projects/project1",
+      },
+      {
+        label: <Link to={"/projects/project2"}>project 2</Link>,
+        key: "/projects/project2",
       },
     ],
   },
@@ -63,12 +57,12 @@ const profileItems: MenuProps["items"] = [
   },
   {
     key: "4",
-    label: "Settings",
+    label: "Cài đặt",
     icon: <SettingOutlined />,
   },
   {
     key: "Signout",
-    label: "Sign out",
+    label: "Đăng xuất",
     icon: <LogoutOutlined />,
   },
 ];
@@ -124,7 +118,7 @@ export default function Header() {
                         variant={"outline"}
                         className="text-[#377dff] hover:bg-[#377dff] hover:text-white border-[#377dff]"
                       >
-                        View all notifications
+                        Xem tất cả thông báo
                       </Button>
                     </div>
                   </div>

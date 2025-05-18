@@ -3,6 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getProjectList } from "@/api/apiClient";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -80,7 +82,11 @@ const Dashboard = () => {
             <h2 className="text-xl mb-2">
               <strong>Dự án</strong>
             </h2>
-            <Button type="primary" onClick={() => setIsModalOpen(true)}>
+            <Button
+              type="primary"
+              onClick={() => setIsModalOpen(true)}
+              icon={<FontAwesomeIcon icon={faPlus} />}
+            >
               Thêm dự án
             </Button>
           </div>
