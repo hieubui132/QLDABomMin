@@ -4,10 +4,12 @@ import {
   PlusOutlined,
   UnorderedListOutlined,
   FolderOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Menu } from "antd";
 import { Link } from "react-router-dom";
+import ProjectSetting from "@/pages/Projects/projectSetting";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -40,8 +42,17 @@ const Navbar = ({ projectId }: NavbarProps) => {
       },
       {
         key: "Files",
-        label: <Link to={"/projects/project1/file"}>Files</Link>,
+        label: <Link to={`/projects/${projectId}/file`}>Files</Link>,
         icon: <FolderOutlined />,
+      },
+      {
+        key: "ProjectSetting",
+        label: (
+          <Link to={`/projects/${projectId}/projectsetting`}>
+            Cài đặt dự án
+          </Link>
+        ),
+        icon: <SettingOutlined />,
       },
     ]);
     setSelectedKeys([`/projects/${projectId}`]);

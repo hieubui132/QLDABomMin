@@ -2,6 +2,7 @@ import type { User } from "../User/User";
 
 export interface FileData {
   id: string;
+  fileSize: string;
 }
 
 export interface ShareFile {

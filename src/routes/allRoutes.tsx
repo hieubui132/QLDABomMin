@@ -13,6 +13,7 @@ import FilesManager from "@/pages/FilesManager";
 //Other
 import { type ComponentType } from "react";
 import FileManager from "@/pages/FileManager";
+import ProjectSetting from "@/pages/Projects/projectSetting";
 
 interface Route {
   path: string;
@@ -44,7 +45,10 @@ const privateRoutes: Route[] = [
     path: "/projects/:projectId/file",
     component: FileManager,
   },
-
+  {
+    path: "/projects/:projectId/projectsetting",
+    component: ProjectSetting,
+  },
   //tất cả route không match với bên trên
   {
     path: "*",

@@ -14,44 +14,41 @@ import {
   FileDoneOutlined,
   InboxOutlined,
 } from "@ant-design/icons";
-import type { TableColumnsType, TableProps, UploadProps } from "antd";
-import { useEffect, useState } from "react";
+import type {
+  TableColumnsType,
+  TableProps,
+  UploadFile,
+  UploadProps,
+} from "antd";
+import { useCallback, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFolderOpen } from "@fortawesome/free-solid-svg-icons";
-import { createShareFile, getShareFileList } from "@/api/apiClient";
+import {
+  createShareFile,
+  deleteShareFile,
+  downloadZip,
+  getShareFileList,
+  uploadFile,
+} from "@/api/apiClient";
 import type { ApiResult } from "@/interfaces/ApiResult/ApiResult";
 import type { ShareFile } from "@/interfaces/FileData/FileData";
 import { NavLink } from "react-router-dom";
 import { useParams, useSearchParams } from "react-router-dom";
 import type { CreateFolderDto } from "@/interfaces/FileData/CreateFolderDto";
+import type { FileDataUploadDto } from "@/interfaces/FileData/FileDataUploadDto";
+import type { PickFolderDto } from "@/interfaces/FileData/PickFolderDto";
+import { toast } from "react-toastify";
+import { formatSize } from "@/util/common";
 
 const { Dragger } = Upload;
-
-const props: UploadProps = {
-  name: "file",
-  multiple: true,
-  action: "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
-  onChange(info) {
-    const { status } = info.file;
-    if (status !== "uploading") {
-      console.log(info.file, info.fileList);
-    }
-    if (status === "done") {
-      message.success(`${info.file.name} file uploaded successfully.`);
-    } else if (status === "error") {
-      message.error(`${info.file.name} file upload failed.`);
-    }
-  },
-  onDrop(e) {
-    console.log("Dropped files", e.dataTransfer.files);
-  },
-};
-
 export default function FileManager() {
   const [isShowAddFolder, setIsShowAddFolder] = useState<boolean>(false);
   const [isShowAddFile, setIsShowAddFile] = useState<boolean>(false);
 
   const [isShowTool, setIsShowTool] = useState<boolean>(true);
+
+  const [rowSelected, setRowSelected] = useState<ShareFile[]>([]);
+
   const [selectionType] = useState<"checkbox" | "radio">("checkbox");
   const [form] = Form.useForm();
   const [datas, setDatas] = useState<ShareFile[]>([]);
@@ -59,6 +56,77 @@ export default function FileManager() {
   const searchPath = searchParams.get("search") ?? "";
   const { projectId } = useParams();
   const [folderName, setFolderName] = useState<string>("");
+
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
+
+  const customRequest: UploadProps["customRequest"] = async (options) => {
+    const { file, onProgress, onSuccess, onError } = options;
+    try {
+      const form = new FormData();
+      let folderP: string = "";
+      if (searchPath == "/") {
+        folderP = "/";
+      } else if (searchPath == "") {
+        folderP = "/";
+      } else {
+        folderP = searchPath;
+      }
+
+      const fileDataUploadDto: FileDataUploadDto = {
+        ProjectId: Number(projectId),
+        Type: 1,
+        PathDir: folderP,
+      };
+      console.log(fileDataUploadDto);
+      form.append("files", file as Blob);
+      form.append("fileDataUploadDto", JSON.stringify(fileDataUploadDto));
+      const result = await uploadFile(form, {
+        headers: { "Content-Type": "multipart/form-data" },
+        onUploadProgress: (event) => {
+          if (event.total) {
+            console.log(event.total);
+            const percent = Math.round((event.loaded * 100) / event.total);
+            onProgress?.({ percent });
+          }
+        },
+      });
+      if (result.isSuccessded) {
+        onSuccess?.("Tải File Lên Thành Công!");
+      }
+    } catch (err) {
+      onError?.(err as Error);
+    }
+  };
+
+  const props: UploadProps = {
+    name: "file",
+    multiple: true,
+    //action: "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
+    customRequest: customRequest,
+    onChange(info) {
+      const { status } = info.file;
+      setFileList(info.fileList);
+      if (status !== "uploading") {
+        console.log(info.file, info.fileList);
+      }
+      if (status === "done") {
+        message.success(`${info.file.name} file uploaded successfully.`);
+      } else if (status === "error") {
+        message.error(`${info.file.name} file upload failed.`);
+      }
+      const allDone =
+        info.fileList.length > 0 &&
+        info.fileList.every((f) =>
+          ["done", "error"].includes(f.status as string)
+        );
+      if (allDone) {
+        fetchShareFile(searchPath == "" ? "/" : searchPath);
+      }
+    },
+    onDrop(e) {
+      console.log("Dropped files", e.dataTransfer.files);
+    },
+  };
 
   const columns: TableColumnsType<ShareFile> = [
     {
@@ -72,13 +140,17 @@ export default function FileManager() {
             ) : (
               <FileDoneOutlined style={{ fontSize: "20px" }} />
             )}
-            <NavLink
-              to={`/projects/${projectId}/file?search=${data.pathDir}`}
-              onClick={() => clickShareFile(data)}
-              style={{ cursor: "pointer" }}
-            >
-              {_text}
-            </NavLink>
+            {data.isFolder ? (
+              <NavLink
+                to={`/projects/${projectId}/file?search=${data.pathDir}`}
+                onClick={() => clickShareFile(data)}
+                style={{ cursor: "pointer" }}
+              >
+                {_text}
+              </NavLink>
+            ) : (
+              <span>{_text}</span>
+            )}
           </Flex>
         );
       },
@@ -87,7 +159,10 @@ export default function FileManager() {
       title: "Kích Thước",
       //dataIndex: "size",
       render: (_text: string, data: ShareFile) => {
-        return <span>_text</span>;
+        if (data.file != null && !data.isFolder) {
+          return <span>{formatSize(Number(data.file.fileSize))}</span>;
+        }
+        return <span></span>;
       },
     },
     {
@@ -117,12 +192,53 @@ export default function FileManager() {
     setIsShowAddFolder(false);
   };
 
+  const onDeleteFolder = async () => {
+    try {
+      var condition: PickFolderDto = {
+        ids: rowSelected.map((x) => x.id),
+        projectId: Number(projectId),
+      };
+      const result = await deleteShareFile(condition);
+      if (result.isSuccessded) {
+        toast.success("Xóa thành công!");
+        fetchShareFile(searchPath == "" ? "/" : searchPath);
+      } else {
+        toast.error(result.errors?.join(" "));
+      }
+      console.log(rowSelected);
+    } catch (ex) {
+      console.log(ex);
+      toast.error("Đã xảy ra lỗi.");
+    }
+  };
+  const onDownload = async () => {
+    try {
+      var condition: PickFolderDto = {
+        ids: rowSelected.map((x) => x.id),
+        projectId: Number(projectId),
+      };
+      const result = await downloadZip(condition, { responseType: "blob" });
+      const url = URL.createObjectURL(result);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "export.zip";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (ex) {
+      console.log(ex);
+      toast.error("Đã xảy ra lỗi.");
+    }
+  };
+
   const onAddFolder = () => {
     setIsShowAddFile(false);
     setIsShowAddFolder((value) => !value);
   };
   const rowSelection: TableProps<ShareFile>["rowSelection"] = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: ShareFile[]) => {
+      setRowSelected(selectedRows);
       if (selectedRows.length > 0) {
         setIsShowTool(false);
       } else {
@@ -148,21 +264,28 @@ export default function FileManager() {
       const search: CreateFolderDto = {
         folderName: folderP,
         //projectId: Number(projectId),
-        projectId: 1,
+        projectId: Number(projectId),
       };
       const result: ApiResult<boolean> = await createShareFile(search);
       if (result.isSuccessded) {
+        toast.success("Thêm thư mục thành công!");
         fetchShareFile(searchPath == "" ? "/" : searchPath);
         setIsShowAddFolder(false);
+      } else {
+        toast.error(result.errors?.join(" "));
       }
     } catch (ex) {
       console.log(ex);
+      toast.error("Đã xảy ra lỗi.");
     }
   };
 
   const fetchShareFile = async (path: string) => {
     try {
-      const result: ApiResult<ShareFile[]> = await getShareFileList(path);
+      const result: ApiResult<ShareFile[]> = await getShareFileList(
+        path,
+        Number(projectId)
+      );
       if (result.isSuccessded) {
         let d: ShareFile[] = result.data ?? [];
         if (
@@ -257,26 +380,28 @@ export default function FileManager() {
             </Form>
             <Flex justify="center">
               <Button danger onClick={onAddFile}>
-                Hủy
+                Đóng
               </Button>
             </Flex>
           </Flex>
         )}
         <Table<ShareFile>
+          pagination={false}
           rowSelection={{ type: selectionType, ...rowSelection }}
           columns={columns}
+          rowKey="id"
           dataSource={datas}
           footer={() => {
             return (
               <Flex gap="small" justify="end">
-                <Button danger onClick={onAddFile} disabled={isShowTool}>
+                <Button danger onClick={onDeleteFolder} disabled={isShowTool}>
                   Xóa
                 </Button>
                 <Button
                   disabled={isShowTool}
                   type="dashed"
                   icon={<DownloadOutlined />}
-                  onClick={onAddFile}
+                  onClick={onDownload}
                 >
                   Tải Về
                 </Button>
