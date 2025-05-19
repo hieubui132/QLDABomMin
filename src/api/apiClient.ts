@@ -8,6 +8,7 @@ import type { FileDataDto } from "@/interfaces/FileData/FileDataDto";
 import { type AxiosRequestConfig } from "axios";
 import type { PickFolderDto } from "@/interfaces/FileData/PickFolderDto";
 import type { ProjectDto } from "@/interfaces/Project/ProjectDto";
+import type { ProjectUserDto } from "@/interfaces/User/ProjectUserDto";
 
 const apiInstance = new ApiClient();
 
@@ -40,3 +41,11 @@ export const deleteShareFile = (data: PickFolderDto) =>
 
 export const downloadZip = (data: PickFolderDto, config?: AxiosRequestConfig) =>
   apiInstance.post<any>(url.url_downloadZip, data, config);
+
+export const getUserByProjectId = (projectId: number, role?: number) => {
+  let urlGet = url.url_getUserByProjectId + `?projectId=${projectId}`;
+  if (role) {
+    urlGet = urlGet + `&role=${role}`;
+  }
+  return apiInstance.get<ApiResult<ProjectUserDto[]>>(urlGet);
+};
