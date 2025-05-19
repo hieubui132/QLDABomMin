@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   HomeOutlined,
   PlusOutlined,
@@ -11,31 +11,41 @@ import { Link } from "react-router-dom";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
-const items: MenuItem[] = [
-  {
-    key: "Home",
-    label: "Home",
-    icon: <HomeOutlined />,
-  },
-  {
-    key: "AddIssue",
-    label: <Link to={"/projects/project1/add-issue"}>Add Issue</Link>,
-    icon: <PlusOutlined />,
-  },
-  {
-    key: "Issues",
-    label: <Link to={"/projects/project1/issues"}>Issues</Link>,
-    icon: <UnorderedListOutlined />,
-  },
-  {
-    key: "Files",
-    label: <Link to={"/projects/project1/file"}>Files</Link>,
-    icon: <FolderOutlined />,
-  },
-];
+interface NavbarProps {
+  projectId: string | undefined;
+}
 
-const Navbar: React.FC = () => {
-  const [selectedKeys, setSelectedKeys] = useState<string[]>(["Home"]);
+const Navbar = ({ projectId }: NavbarProps) => {
+  const [items, setItems] = useState<MenuItem[]>([]);
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+
+  useEffect(() => {
+    setItems([
+      {
+        key: `/projects/${projectId}`,
+        label: <Link to={`/projects/${projectId}`}>Trang chủ</Link>,
+        icon: <HomeOutlined />,
+      },
+      {
+        key: `/projects/${projectId}/add-issue`,
+        label: <Link to={`/projects/${projectId}/add-issue`}>Thêm rủi ro</Link>,
+        icon: <PlusOutlined />,
+      },
+      {
+        key: `/projects/${projectId}/issues`,
+        label: (
+          <Link to={`/projects/${projectId}/issues`}>Danh sách rủi ro</Link>
+        ),
+        icon: <UnorderedListOutlined />,
+      },
+      {
+        key: "Files",
+        label: <Link to={"/projects/project1/file"}>Files</Link>,
+        icon: <FolderOutlined />,
+      },
+    ]);
+    setSelectedKeys([`/projects/${projectId}`]);
+  }, [projectId]);
 
   const onClick: MenuProps["onClick"] = (e) => {
     setSelectedKeys([e.key]);

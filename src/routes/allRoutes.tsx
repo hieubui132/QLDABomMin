@@ -8,6 +8,7 @@ import Dashboard from "@/pages/Dashboard";
 import Home from "@/pages/Home";
 import AddIssue from "@/pages/AddIssue";
 import Issues from "@/pages/Issues";
+import FilesManager from "@/pages/FilesManager";
 
 //Other
 import { type ComponentType } from "react";

@@ -11,8 +11,7 @@ const Home = () => {
       <Row gutter={30}>
         <Col xxl={14}>
           <h2 className="text-lg mb-2">
-            <strong>Project Home : </strong>
-            <span>Recent Updates</span>
+            <strong>Cập nhật</strong>
           </h2>
           <Space direction="vertical" size={16} className="w-full">
             <Card title="Thu May. 15, 2025">HieuBC added a new</Card>

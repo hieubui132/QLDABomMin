@@ -95,7 +95,7 @@ const Dashboard = () => {
               return (
                 <Card
                   className="hover:bg-[#4096FF] cursor-pointer hover:text-white transition-all duration-200 mb-2"
-                  onClick={() => navigate("/projects/project1")}
+                  onClick={() => navigate(`/projects/${item.id}`)}
                   key={index}
                 >
                   <CardContent>{item.projectName}</CardContent>

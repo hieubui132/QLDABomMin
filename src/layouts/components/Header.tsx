@@ -1,7 +1,6 @@
 import logo from "@/assets/images/Logo-Tong-Cong-Ty-319.png";
 import { useState, useEffect } from "react";
 import {
-  MailOutlined,
   SettingOutlined,
   BellOutlined,
   UserOutlined,
@@ -13,31 +12,9 @@ import NotifyItem from "@/components/common/NotifyItem";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { getProjectList } from "@/api/apiClient";
 
 type MenuItem = Required<MenuProps>["items"][number];
-
-const menuItems: MenuItem[] = [
-  {
-    label: <Link to={"/dashboard"}>Dashboard</Link>,
-    key: "/dashboard",
-    icon: <MailOutlined />,
-  },
-  {
-    label: "Dự án",
-    key: "Projects",
-    icon: <SettingOutlined />,
-    children: [
-      {
-        label: <Link to={"/projects/project1"}>project 1</Link>,
-        key: "/projects/project1",
-      },
-      {
-        label: <Link to={"/projects/project2"}>project 2</Link>,
-        key: "/projects/project2",
-      },
-    ],
-  },
-];
 
 const profileItems: MenuProps["items"] = [
   {
@@ -68,7 +45,20 @@ const profileItems: MenuProps["items"] = [
 ];
 
 export default function Header() {
-  const [selectedKeys, setSelectedKeys] = useState(["mail"]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([
+    {
+      label: <Link to={"/dashboard"}>Dashboard</Link>,
+      key: "/dashboard",
+      icon: <i className="fa-sharp fa-regular fa-rectangles-mixed"></i>,
+    },
+    {
+      label: "Dự án",
+      key: "Projects",
+      icon: <i className="fa-solid fa-list-tree"></i>,
+      children: [],
+    },
+  ]);
+  const [selectedKeys, setSelectedKeys] = useState(["/dashboard"]);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -77,8 +67,50 @@ export default function Header() {
   };
 
   useEffect(() => {
-    setSelectedKeys([location.pathname]);
+    if (location.pathname.startsWith("/projects")) {
+      const projectId = location.pathname.split("/")[2];
+      setSelectedKeys([`/projects/${projectId}`]);
+    } else {
+      setSelectedKeys([location.pathname]);
+    }
   }, [location.pathname]);
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const res: any = await getProjectList({
+          orderBy: "",
+          pageNumber: 1,
+          pageSize: 999,
+        });
+        if (res.isSuccessded) {
+          setMenuItems([
+            {
+              label: <Link to={"/dashboard"}>Dashboard</Link>,
+              key: "/dashboard",
+              icon: <i className="fa-sharp fa-regular fa-rectangles-mixed"></i>,
+            },
+            {
+              label: "Dự án",
+              key: "Projects",
+              icon: <i className="fa-solid fa-list-tree"></i>,
+              children: [
+                ...res?.data?.list.map((item: any) => ({
+                  label: (
+                    <Link to={`/projects/${item.id}`}>{item.projectName}</Link>
+                  ),
+                  key: `/projects/${item.id}`,
+                })),
+              ],
+            },
+          ]);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    getData();
+  }, []);
 
   const handleProfileClick: MenuProps["onClick"] = (e) => {
     if (e.key === "Signout") {
