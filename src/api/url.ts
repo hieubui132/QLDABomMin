@@ -11,8 +11,6 @@ export const url_getProjectDetail = "/api/projects/get";
 export const url_addIssue = "/api/issues/upsert";
 
 //Phongnv
-
-//
 export const url_getShareFile = "/api/filedatas/listsharefile/";
 export const url_createShareFile = "/api/filedatas/createfolder";
 export const url_uploadFile = "/api/filedatas/upload";

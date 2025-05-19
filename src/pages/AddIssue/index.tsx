@@ -88,7 +88,10 @@ export default function AddIssue() {
         <strong>Thêm mới rủi ro</strong>
       </h1>
       <Form onFinish={handleAddIssue} form={form}>
-        <Form.Item name={"Title"}>
+        <Form.Item
+          name={"Title"}
+          rules={[{ required: true, message: "Vui lòng nhập tiêu đề" }]}
+        >
           <Input placeholder="Tiêu đề" />
         </Form.Item>
         <Card className="rounded-sm mb-4 pb-0">
@@ -112,6 +115,12 @@ export default function AddIssue() {
                   labelAlign="left"
                   labelCol={{ span: 8 }}
                   wrapperCol={{ span: 8 }}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn trạng thái",
+                    },
+                  ]}
                 >
                   <Select
                     options={statusOptions.map((item) => {
@@ -127,25 +136,41 @@ export default function AddIssue() {
                     })}
                   />
                 </Form.Item>
-                {/* <Form.Item
-                  name={"Category"}
-                  label="Danh mục"
-                  labelAlign="left"
-                  labelCol={{ span: 8 }}
-                  wrapperCol={{ span: 8 }}
-                >
-                  <Select placeholder="Chọn danh mục" />
-                </Form.Item> */}
-              </Col>
-              <Col xxl={12} xs={24}>
                 <Form.Item
                   name={"Assignee"}
                   label="Người được giao"
                   labelAlign="left"
                   labelCol={{ span: 8 }}
                   wrapperCol={{ span: 8 }}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn người được giao",
+                    },
+                  ]}
                 >
                   <Select placeholder="Chọn người được giao" />
+                </Form.Item>
+              </Col>
+              <Col xxl={12} xs={24}>
+                <Form.Item
+                  name={"StartDate"}
+                  label="Ngày bắt đầu"
+                  labelAlign="left"
+                  labelCol={{ span: 8 }}
+                  wrapperCol={{ span: 8 }}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn ngày bắt đầu",
+                    },
+                  ]}
+                >
+                  <DatePicker
+                    format={"DD/MM/YYYY"}
+                    placeholder="Chọn ngày bắt đầu"
+                    className="w-full"
+                  />
                 </Form.Item>
                 <Form.Item
                   name={"DueDate"}
@@ -153,6 +178,12 @@ export default function AddIssue() {
                   labelAlign="left"
                   labelCol={{ span: 8 }}
                   wrapperCol={{ span: 8 }}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn ngày hết hạn",
+                    },
+                  ]}
                 >
                   <DatePicker
                     format={"DD/MM/YYYY"}
