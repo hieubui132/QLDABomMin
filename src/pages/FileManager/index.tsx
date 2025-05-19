@@ -137,13 +137,23 @@ export default function FileManager() {
   const fetchCreateShareFile = async () => {
     try {
       if (projectId == undefined) return;
+      let folderP: string = "";
+      if (searchPath == "/") {
+        folderP = "/" + folderName;
+      } else if (searchPath == "") {
+        folderP = "/" + folderName;
+      } else {
+        folderP = searchPath + "/" + folderName;
+      }
       const search: CreateFolderDto = {
-        folderName: folderName,
-        projectId: Number(projectId),
+        folderName: folderP,
+        //projectId: Number(projectId),
+        projectId: 1,
       };
       const result: ApiResult<boolean> = await createShareFile(search);
       if (result.isSuccessded) {
         fetchShareFile(searchPath == "" ? "/" : searchPath);
+        setIsShowAddFolder(false);
       }
     } catch (ex) {
       console.log(ex);
