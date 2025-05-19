@@ -20,7 +20,7 @@ import type {
   UploadFile,
   UploadProps,
 } from "antd";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFolderOpen } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -143,7 +143,6 @@ export default function FileManager() {
             {data.isFolder ? (
               <NavLink
                 to={`/projects/${projectId}/file?search=${data.pathDir}`}
-                onClick={() => clickShareFile(data)}
                 style={{ cursor: "pointer" }}
               >
                 {_text}
@@ -174,15 +173,6 @@ export default function FileManager() {
     },
   ];
 
-  const clickShareFile = (data: ShareFile) => {
-    // if (data.isFolder && data.id != 0) {
-    //   navigate(data.pathDir.replace(/^\/+/, ""), { relative: "path" });
-    // }
-    // if (data.id == 0) {
-    //   navigate(data.pathDir.replace(/^\/+/, ""), { relative: "path" });
-    // }
-  };
-
   useEffect(() => {
     fetchShareFile(searchPath == "" ? "/" : searchPath);
   }, [searchPath]);
@@ -194,7 +184,7 @@ export default function FileManager() {
 
   const onDeleteFolder = async () => {
     try {
-      var condition: PickFolderDto = {
+      const condition: PickFolderDto = {
         ids: rowSelected.map((x) => x.id),
         projectId: Number(projectId),
       };
@@ -213,7 +203,7 @@ export default function FileManager() {
   };
   const onDownload = async () => {
     try {
-      var condition: PickFolderDto = {
+      const condition: PickFolderDto = {
         ids: rowSelected.map((x) => x.id),
         projectId: Number(projectId),
       };

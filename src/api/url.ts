@@ -18,3 +18,4 @@ export const url_createShareFile = "/api/filedatas/createfolder";
 export const url_uploadFile = "/api/filedatas/upload";
 export const url_deleteFolder = "/api/filedatas/deletefolder";
 export const url_downloadZip = "/api/filedatas/downloadzip";
+export const url_getUserByProjectId = "/api/projects/getuserbyprojectid";

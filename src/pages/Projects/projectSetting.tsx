@@ -1,14 +1,15 @@
-import { getProjectDetail } from "@/api/apiClient";
+import { getProjectDetail, getUserByProjectId } from "@/api/apiClient";
 import StatusFilter from "@/components/common/StatusFilter";
 import type { StatusFilterValue } from "@/interfaces/Components/StatusFilterValue";
+import { getRoleName } from "@/interfaces/Enum/RoleType";
 import type { ProjectDto } from "@/interfaces/Project/ProjectDto";
+import type { ProjectUserDto } from "@/interfaces/User/ProjectUserDto";
 import { faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   Button,
   Flex,
   Input,
-  Radio,
   Space,
   Table,
   Tabs,
@@ -17,58 +18,39 @@ import {
   type TableProps,
 } from "antd";
 import { Form } from "antd";
+import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-type TabPosition = "left" | "right" | "top" | "bottom";
-interface DataType {
-  key: string;
-  name: string;
-  age: number;
-  address: string;
-  tags: string[];
-}
 
-const columns: TableProps<DataType>["columns"] = [
+const columns: TableProps<ProjectUserDto>["columns"] = [
   {
     title: "Tên",
-    dataIndex: "name",
     key: "name",
-    render: (text) => <a>{text}</a>,
+    render: (_, record: ProjectUserDto) => <span>{record.user.fullName}</span>,
   },
   {
     title: "Email",
-    dataIndex: "age",
     key: "age",
+    render: (_, record: ProjectUserDto) => <span>{record.user.email}</span>,
   },
   {
     title: "Role",
-    dataIndex: "address",
     key: "address",
+    render: (_, record: ProjectUserDto) => <span>{record.user.role}</span>,
   },
   {
     title: "Thời điểm tham gia",
     key: "tags",
-    dataIndex: "tags",
-    render: (_, { tags }) => (
+    render: (_, record: ProjectUserDto) => (
       <>
-        {tags.map((tag) => {
-          let color = tag.length > 5 ? "geekblue" : "green";
-          if (tag === "loser") {
-            color = "volcano";
-          }
-          return (
-            <Tag color={color} key={tag}>
-              {tag.toUpperCase()}
-            </Tag>
-          );
-        })}
+        <span>{dayjs(record.joinDate).format("HH:mm:ss DD/MM/YYYY")}</span>
       </>
     ),
   },
   {
     title: "Hành động",
     key: "action",
-    render: (_, record) => (
+    render: (_, record: ProjectUserDto) => (
       <Space size="middle">
         <Tooltip placement="topLeft" title="Xóa thành viên khỏi dự án">
           <FontAwesomeIcon
@@ -80,33 +62,14 @@ const columns: TableProps<DataType>["columns"] = [
     ),
   },
 ];
-const data: DataType[] = [
-  {
-    key: "1",
-    name: "John Brown",
-    age: 32,
-    address: "New York No. 1 Lake Park",
-    tags: ["nice", "developer"],
-  },
-  {
-    key: "2",
-    name: "Jim Green",
-    age: 42,
-    address: "London No. 1 Lake Park",
-    tags: ["loser"],
-  },
-  {
-    key: "3",
-    name: "Joe Black",
-    age: 32,
-    address: "Sydney No. 1 Lake Park",
-    tags: ["cool", "teacher"],
-  },
-];
+
 const ProjectSetting = () => {
   const [form] = Form.useForm();
   const { projectId } = useParams();
   const [project, setProject] = useState<ProjectDto | null>(null);
+  const [projectUsers, setProjectUsers] = useState<ProjectUserDto[]>([]);
+  const [statusChoice, setStatusChoice] = useState<number>(-1);
+  const [loading, setLoading] = useState(false);
   const handleAddIssue = async (values: any) => {
     try {
       console.log("xx", values);
@@ -126,7 +89,31 @@ const ProjectSetting = () => {
         form.setFieldsValue({ projectName: result.data?.projectName });
         setProject(result.data);
       }
-    } catch (ex) {}
+    } catch (ex) {
+      console.log(ex);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserInProject();
+  }, [statusChoice]);
+
+  const fetchUserInProject = async () => {
+    try {
+      setLoading(true);
+      const result = await getUserByProjectId(
+        Number(projectId),
+        statusChoice === -1 ? undefined : statusChoice
+      );
+      if (result.isSuccessded) {
+        console.log(result.data);
+        setProjectUsers(result.data ?? []);
+      }
+      setLoading(false);
+    } catch (ex) {
+      console.log(ex);
+      setLoading(false);
+    }
   };
 
   const General = () => {
@@ -168,7 +155,7 @@ const ProjectSetting = () => {
       value: 3,
     },
   ];
-  const [statusChoice, setStatusChoice] = useState<number>(-1);
+
   const Employee = () => {
     return (
       <div>
@@ -195,7 +182,11 @@ const ProjectSetting = () => {
             <Button>Thêm Người Dùng Mới</Button>
           </Flex>
         </Flex>
-        <Table<DataType> columns={columns} dataSource={data} />
+        <Table<ProjectUserDto>
+          loading={loading}
+          columns={columns}
+          dataSource={projectUsers}
+        />
       </div>
     );
   };
