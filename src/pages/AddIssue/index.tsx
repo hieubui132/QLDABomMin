@@ -9,7 +9,7 @@ import {
   Upload,
   Badge,
 } from "antd";
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import JoditEditor from "jodit-react";
 import { InboxOutlined } from "@ant-design/icons";
@@ -18,15 +18,18 @@ import { statusOptions } from "@/constants/selectOption";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
-import { addIssue } from "@/api/apiClient";
+import { addIssue, getUserByProjectId } from "@/api/apiClient";
 
 const { Dragger } = Upload;
+const { RangePicker } = DatePicker;
 
 export default function AddIssue() {
   const editor = useRef(null);
   const [form] = Form.useForm();
   const [content, setContent] = useState("");
   const { projectId } = useParams();
+  const [userList, setUserList] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const props: UploadProps = {
     name: "file",
@@ -41,8 +44,25 @@ export default function AddIssue() {
       }
       return isImage || Upload.LIST_IGNORE; // Chặn file không hợp lệ
     },
-    customRequest({ file }) {
-      console.log("File upload:", file);
+    customRequest({ file, onSuccess }) {
+      // Chuyển file thành base64
+      const reader = new FileReader();
+      reader.readAsDataURL(file as Blob);
+      reader.onload = () => {
+        const base64String = reader.result as string;
+
+        // Chèn ảnh vào editor
+        setContent(
+          `${content}<img src="${base64String}" alt="Uploaded image" style="max-width: 100%; height: auto;" />`
+        );
+
+        // Gọi onSuccess để hoàn tất quá trình upload
+        onSuccess?.(file);
+      };
+      reader.onerror = (error) => {
+        console.error("Error converting image to base64:", error);
+        toast.error("Không thể xử lý ảnh. Vui lòng thử lại.");
+      };
     },
   };
 
@@ -55,19 +75,20 @@ export default function AddIssue() {
   );
 
   const handleAddIssue = async (values: any) => {
+    setLoading(true);
     try {
       const formData = {
         issueName: values.Title,
         riskDecriptions: content,
-        startDated: dayjs().format("YYYY-MM-DDTHH:mm:ss"),
-        endDate: dayjs(values.DueDate).format("YYYY-MM-DDTHH:mm:ss"),
+        startDated: dayjs(values.Date[0]).format("YYYY-MM-DDTHH:mm:ss"),
+        endDate: dayjs(values.Date[1]).format("YYYY-MM-DDTHH:mm:ss"),
         status: Number(values.Status),
-        likeLiHood: 1,
-        conseQuence: 1,
+        likeLiHood: null,
+        conseQuence: null,
         lat: 0,
         long: 0,
-        assigneeId: 1,
-        projectId: projectId,
+        assigneeId: values.Assignee,
+        projectId: Number(projectId),
       };
       const res: any = await addIssue(formData);
       if (res.isSuccessded) {
@@ -79,8 +100,29 @@ export default function AddIssue() {
       }
     } catch (error) {
       console.error("Error adding issue:", error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res: any = await getUserByProjectId(Number(projectId));
+        if (res.isSuccessded) {
+          const users = res.data.map((item: any) => ({
+            label: item.user.fullName,
+            value: item.user.id,
+          }));
+          setUserList(users);
+        }
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   return (
     <>
@@ -138,57 +180,46 @@ export default function AddIssue() {
                 </Form.Item>
                 <Form.Item
                   name={"Assignee"}
-                  label="Người được giao"
+                  label="Người phụ trách"
                   labelAlign="left"
                   labelCol={{ span: 8 }}
                   wrapperCol={{ span: 8 }}
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng chọn người được giao",
+                      message: "Vui lòng chọn người phụ trách",
                     },
                   ]}
                 >
-                  <Select placeholder="Chọn người được giao" />
+                  <Select
+                    placeholder="Chọn người phụ trách"
+                    options={userList}
+                    allowClear
+                  />
                 </Form.Item>
               </Col>
               <Col xxl={12} xs={24}>
                 <Form.Item
-                  name={"StartDate"}
-                  label="Ngày bắt đầu"
+                  name={"Date"}
+                  label="Thời hạn"
                   labelAlign="left"
                   labelCol={{ span: 8 }}
-                  wrapperCol={{ span: 8 }}
+                  wrapperCol={{ span: 10 }}
                   rules={[
                     {
                       required: true,
-                      message: "Vui lòng chọn ngày bắt đầu",
+                      message: "Vui lòng chọn ngày bắt đầu và ngày kết thúc",
                     },
                   ]}
                 >
-                  <DatePicker
+                  <RangePicker
                     format={"DD/MM/YYYY"}
-                    placeholder="Chọn ngày bắt đầu"
                     className="w-full"
-                  />
-                </Form.Item>
-                <Form.Item
-                  name={"DueDate"}
-                  label="Ngày hết hạn"
-                  labelAlign="left"
-                  labelCol={{ span: 8 }}
-                  wrapperCol={{ span: 8 }}
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng chọn ngày hết hạn",
-                    },
-                  ]}
-                >
-                  <DatePicker
-                    format={"DD/MM/YYYY"}
-                    placeholder="Chọn ngày hết hạn"
-                    className="w-full"
+                    allowClear
+                    disabledDate={(current) =>
+                      current && current < dayjs().startOf("day")
+                    }
+                    placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
                   />
                 </Form.Item>
               </Col>
@@ -213,7 +244,12 @@ export default function AddIssue() {
           <Select mode="multiple" />
         </Form.Item> */}
         <div className="text-end">
-          <Button type="primary" htmlType="submit" className="w-50">
+          <Button
+            type="primary"
+            htmlType="submit"
+            className="w-50"
+            loading={loading}
+          >
             Thêm
           </Button>
         </div>
