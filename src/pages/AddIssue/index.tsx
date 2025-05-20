@@ -22,6 +22,24 @@ import { addIssue, getUserByProjectId } from "@/api/apiClient";
 
 const { Dragger } = Upload;
 const { RangePicker } = DatePicker;
+const editorButtons = [
+  "bold",
+  "italic",
+  "underline",
+  "strikethrough",
+  "symbols",
+  "|",
+  "ul",
+  "ol",
+  "|",
+  "link",
+  "image",
+  "|",
+  "eraser",
+  "source",
+  "|",
+  "about",
+];
 
 export default function AddIssue() {
   const editor = useRef(null);
@@ -70,6 +88,7 @@ export default function AddIssue() {
     () => ({
       readonly: false, // all options from https://xdsoft.net/jodit/docs/,
       placeholder: "Nhập mô tả...",
+      buttons: editorButtons,
     }),
     []
   );

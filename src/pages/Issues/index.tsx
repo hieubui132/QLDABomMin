@@ -1,14 +1,24 @@
-import { Row, Col, Select, Table, Badge, Input } from "antd";
+import {
+  Row,
+  Col,
+  Select,
+  Table,
+  Badge,
+  Input,
+  ConfigProvider,
+  theme,
+} from "antd";
 import { statusOptions } from "@/constants/selectOption";
 import { useEffect, useState } from "react";
 import { getIssueList, getUserByProjectId } from "@/api/apiClient";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 
 const { Search } = Input;
 
 export default function Issues() {
   const { projectId } = useParams();
+  const navigate = useNavigate();
   const [issueList, setIssueList] = useState([]);
   const [userList, setUserList] = useState([]);
   const [status, setStatus] = useState(null);
@@ -46,7 +56,7 @@ export default function Issues() {
       dataIndex: "assignee",
     },
     {
-      title: "Mô tả",
+      title: "Bình luận",
       dataIndex: "riskDecriptions",
       render: (text: string) => {
         return text.length > 50 ? text.slice(0, 50) + "..." : text;
@@ -62,12 +72,14 @@ export default function Issues() {
           pageNumber: 1,
           pageSize: 999,
           projectId: Number(projectId),
-          status: status,
-          assigneeId: assigneeId,
+          status: status != null ? Number(status) : null,
+          assigneeId: assigneeId != null ? Number(assigneeId) : null,
           searchTerm: "",
         });
         if (response.isSuccessded) {
           setIssueList(response.data.list);
+        } else {
+          setIssueList([]);
         }
       } catch (error) {
         console.error("Error fetching issue list:", error);
@@ -134,16 +146,29 @@ export default function Issues() {
           />
         </Col>
       </Row>
-      <Table
-        columns={columns}
-        dataSource={issueList}
-        rowKey={"id"}
-        scroll={{
-          x: 900,
-          y: 500,
+      <ConfigProvider
+        theme={{
+          algorithm: theme.defaultAlgorithm,
         }}
-        bordered
-      />
+      >
+        <Table
+          columns={columns}
+          dataSource={issueList}
+          rowKey={"id"}
+          scroll={{
+            x: 900,
+            y: 500,
+          }}
+          bordered
+          onRow={(record: any) => {
+            return {
+              onClick: () => {
+                navigate(`/projects/${projectId}/issues/${record.id}`);
+              }, // click row
+            };
+          }}
+        />
+      </ConfigProvider>
     </>
   );
 }

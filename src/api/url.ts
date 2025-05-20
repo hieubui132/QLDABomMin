@@ -13,6 +13,15 @@ export const url_addIssue = "/api/issues/upsert";
 //Lấy danh sách issue
 export const url_getIssueList = "/api/issues/list";
 
+//Lấy chi tiết issue
+export const url_getIssueDetail = "/api/issues/get";
+
+//Thêm bình luận
+export const url_addComment = "/api/issues/comment";
+
+//Lấy danh sách bình luận
+export const url_getCommentList = "/api/issues/listcomment";
+
 //Phongnv
 export const url_getShareFile = "/api/filedatas/listsharefile/";
 export const url_createShareFile = "/api/filedatas/createfolder";
