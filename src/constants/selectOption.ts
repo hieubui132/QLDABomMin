@@ -28,3 +28,21 @@ export const statusOptions: OptionType[] = [
     value: "3",
   },
 ];
+
+export const roleOptions: OptionType[] = [
+  {
+    badgeStatus: "warning",
+    label: "Admin",
+    value: "0",
+  },
+  {
+    badgeStatus: "processing",
+    label: "Quản lý dự án",
+    value: "1",
+  },
+  {
+    badgeStatus: "success",
+    label: "Nhân viên thi công",
+    value: "2",
+  },
+];

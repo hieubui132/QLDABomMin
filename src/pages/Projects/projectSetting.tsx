@@ -1,7 +1,10 @@
-import { getProjectDetail, getUserByProjectId } from "@/api/apiClient";
+import {
+  deleteUserInProject,
+  getProjectDetail,
+  getUserByProjectId,
+} from "@/api/apiClient";
 import StatusFilter from "@/components/common/StatusFilter";
 import type { StatusFilterValue } from "@/interfaces/Components/StatusFilterValue";
-import { getRoleName } from "@/interfaces/Enum/RoleType";
 import type { ProjectDto } from "@/interfaces/Project/ProjectDto";
 import type { ProjectUserDto } from "@/interfaces/User/ProjectUserDto";
 import { faX } from "@fortawesome/free-solid-svg-icons";
@@ -13,7 +16,6 @@ import {
   Space,
   Table,
   Tabs,
-  Tag,
   Tooltip,
   type TableProps,
 } from "antd";
@@ -21,45 +23,26 @@ import { Form } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import AddUserToProjectModal from "./Modal/addUserToProjectModal";
+import type { ProjectUserActionDto } from "@/interfaces/Project/ProjectUserActionDto";
+import { toast } from "react-toastify";
 
-const columns: TableProps<ProjectUserDto>["columns"] = [
+const enumx: StatusFilterValue[] = [
   {
-    title: "Tên",
-    key: "name",
-    render: (_, record: ProjectUserDto) => <span>{record.user.fullName}</span>,
+    name: "Tất cả",
+    value: -1,
   },
   {
-    title: "Email",
-    key: "age",
-    render: (_, record: ProjectUserDto) => <span>{record.user.email}</span>,
+    name: "Admin",
+    value: 1,
   },
   {
-    title: "Role",
-    key: "address",
-    render: (_, record: ProjectUserDto) => <span>{record.user.role}</span>,
+    name: "Nhân viên dự án",
+    value: 2,
   },
   {
-    title: "Thời điểm tham gia",
-    key: "tags",
-    render: (_, record: ProjectUserDto) => (
-      <>
-        <span>{dayjs(record.joinDate).format("HH:mm:ss DD/MM/YYYY")}</span>
-      </>
-    ),
-  },
-  {
-    title: "Hành động",
-    key: "action",
-    render: (_, record: ProjectUserDto) => (
-      <Space size="middle">
-        <Tooltip placement="topLeft" title="Xóa thành viên khỏi dự án">
-          <FontAwesomeIcon
-            icon={faX}
-            style={{ color: "red", cursor: "pointer" }}
-          ></FontAwesomeIcon>
-        </Tooltip>
-      </Space>
-    ),
+    name: "Nhân viên Thực hiện",
+    value: 3,
   },
 ];
 
@@ -70,6 +53,84 @@ const ProjectSetting = () => {
   const [projectUsers, setProjectUsers] = useState<ProjectUserDto[]>([]);
   const [statusChoice, setStatusChoice] = useState<number>(-1);
   const [loading, setLoading] = useState(false);
+  const [isModalChoiceUserOpen, setIsModalChoiceUserOpen] = useState(false);
+
+  const columns: TableProps<ProjectUserDto>["columns"] = [
+    {
+      title: "Tên",
+      key: "name",
+      render: (_, record: ProjectUserDto) => (
+        <span>{record.user?.fullName}</span>
+      ),
+    },
+    {
+      title: "Email",
+      key: "age",
+      render: (_, record: ProjectUserDto) => <span>{record.user?.email}</span>,
+    },
+    {
+      title: "Role",
+      render: (_, record: ProjectUserDto) => <span>{record.user?.role}</span>,
+    },
+    {
+      title: "Thời điểm tham gia",
+      key: "tags",
+      render: (_, record: ProjectUserDto) => (
+        <>
+          <span>{dayjs(record.joinDate).format("HH:mm:ss DD/MM/YYYY")}</span>
+        </>
+      ),
+    },
+    {
+      title: "Hành động",
+      key: "action",
+      render: (_, record: ProjectUserDto) => (
+        <Space size="middle">
+          <Tooltip placement="topLeft" title="Xóa thành viên khỏi dự án">
+            <FontAwesomeIcon
+              onClick={() => fetchDeleteUser(record.userId)}
+              icon={faX}
+              style={{ color: "red", cursor: "pointer" }}
+            ></FontAwesomeIcon>
+          </Tooltip>
+        </Space>
+      ),
+    },
+  ];
+
+  const fetchDeleteUser = async (id: number) => {
+    try {
+      const userCondition: ProjectUserActionDto = {
+        projectId: Number(projectId),
+        userIds: [id],
+      };
+      console.log(userCondition);
+      const result = await deleteUserInProject(userCondition);
+      if (result.isSuccessded) {
+        toast.success("Xóa người dùng khỏi dự án thành công!");
+        fetchUserInProject();
+      } else {
+        toast.error(result.errors?.join(" "));
+      }
+    } catch (ex) {
+      console.log(ex);
+      toast.error("Có lỗi xảy ra");
+    }
+  };
+
+  const showModalChoiceUser = () => {
+    setIsModalChoiceUserOpen(true);
+  };
+
+  const handleOkModalChoiceUser = () => {
+    setIsModalChoiceUserOpen(false);
+    fetchUserInProject();
+  };
+
+  const handleCancelModalChoiceUser = () => {
+    setIsModalChoiceUserOpen(false);
+  };
+
   const handleAddIssue = async (values: any) => {
     try {
       console.log("xx", values);
@@ -137,25 +198,6 @@ const ProjectSetting = () => {
     );
   };
 
-  const enumx: StatusFilterValue[] = [
-    {
-      name: "Tất cả",
-      value: -1,
-    },
-    {
-      name: "Admin",
-      value: 1,
-    },
-    {
-      name: "Nhân viên dự án",
-      value: 2,
-    },
-    {
-      name: "Nhân viên Thực hiện",
-      value: 3,
-    },
-  ];
-
   const Employee = () => {
     return (
       <div>
@@ -178,7 +220,7 @@ const ProjectSetting = () => {
             <Button></Button>
           </Flex>
           <Flex gap="small">
-            <Button>Thêm Thành Viên</Button>
+            <Button onClick={showModalChoiceUser}>Thêm Thành Viên</Button>
             <Button>Thêm Người Dùng Mới</Button>
           </Flex>
         </Flex>
@@ -187,6 +229,12 @@ const ProjectSetting = () => {
           columns={columns}
           dataSource={projectUsers}
         />
+
+        <AddUserToProjectModal
+          isModalChoiceUserOpen={isModalChoiceUserOpen}
+          handleOkModalChoiceUser={handleOkModalChoiceUser}
+          handleCancelModalChoiceUser={handleCancelModalChoiceUser}
+        ></AddUserToProjectModal>
       </div>
     );
   };

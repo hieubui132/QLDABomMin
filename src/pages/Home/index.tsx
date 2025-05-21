@@ -1,13 +1,64 @@
 // import { useParams } from "react-router-dom";
 import PercentBar from "@/components/common/PercentBar";
 import { Row, Col, Card, Space } from "antd";
+import RiskMatrix from "./RiskMatrix";
+import MapRisk from "./MapRisk";
+import type { IssueCondition } from "@/interfaces/Issue/Condition/IssueCondition";
+import { useParams } from "react-router-dom";
+import { getIssueList } from "@/api/apiClient";
+import { useEffect, useState } from "react";
+import type { IssueDto } from "@/interfaces/Issue/IssueDto";
 // import { statusOptions } from "@/constants/selectOption";
 
 const Home = () => {
   // const { projectId } = useParams();
+  const { projectId } = useParams();
+  const [issues, setIssues] = useState<IssueDto[]>([]);
+  const fetchIssueList = async () => {
+    try {
+      const condition: IssueCondition = {
+        projectId: Number(projectId),
+        pageSize: 10000,
+        pageNumber: 1,
+      };
+      const result = await getIssueList(condition);
+      if (result.isSuccessded) {
+        const res = result.data?.list.map((x) => {
+          if (x.likeLiHood == undefined || x.conseQuence == undefined) {
+            x.score = undefined;
+          } else {
+            x.score = x.likeLiHood * x.conseQuence;
+          }
+          return x;
+        });
+        setIssues(res ?? []);
+      }
+    } catch (ex) {
+      console.log(ex);
+    }
+  };
+
+  useEffect(() => {
+    fetchIssueList();
+  }, [projectId]);
 
   return (
-    <div className="w-full">
+    <div className="">
+      <div>{/* <RiskMatrix></RiskMatrix> */}</div>
+      <Row gutter={16}>
+        <Col span={12}>
+          <div className=" overflow-x-auto w-full">
+            <h2 className="text-xl font-bold mb-4">Ma trận Rủi ro</h2>
+            <RiskMatrix></RiskMatrix>
+          </div>
+        </Col>
+        <Col span={12}>
+          <div className=" overflow-x-auto w-full">
+            <h2 className="text-xl font-bold mb-4">Khu vực rủi ro</h2>
+            <MapRisk issues={issues}></MapRisk>
+          </div>
+        </Col>
+      </Row>
       <Row gutter={30}>
         <Col xxl={14}>
           <h2 className="text-lg mb-2">

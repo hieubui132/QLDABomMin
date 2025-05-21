@@ -9,6 +9,11 @@ import { type AxiosRequestConfig } from "axios";
 import type { PickFolderDto } from "@/interfaces/FileData/PickFolderDto";
 import type { ProjectDto } from "@/interfaces/Project/ProjectDto";
 import type { ProjectUserDto } from "@/interfaces/User/ProjectUserDto";
+import type { User } from "@/interfaces/User/User";
+import type { ProjectUserActionDto } from "@/interfaces/Project/ProjectUserActionDto";
+import type { IssueCondition } from "@/interfaces/Issue/Condition/IssueCondition";
+import type { IssueDto } from "@/interfaces/Issue/IssueDto";
+import type { PageList } from "@/interfaces/Paging/PageList";
 
 const apiInstance = new ApiClient();
 
@@ -49,3 +54,16 @@ export const getUserByProjectId = (projectId: number, role?: number) => {
   }
   return apiInstance.get<ApiResult<ProjectUserDto[]>>(urlGet);
 };
+
+export const getUserNotExistsInProjectId = (projectId: number) =>
+  apiInstance.get<ApiResult<User[]>>(
+    url.url_getUserNotExistsInProjectId + `?projectId=${projectId}`
+  );
+export const addUserInProject = (data: ProjectUserDto[]) =>
+  apiInstance.post<ApiResult<ProjectUserDto[]>>(url.url_addUserInProject, data);
+
+export const deleteUserInProject = (data: ProjectUserActionDto) =>
+  apiInstance.post<ApiResult<boolean>>(url.url_deleteUserInProject, data);
+
+export const getIssueList = (data: IssueCondition) =>
+  apiInstance.post<ApiResult<PageList<IssueDto>>>(url.url_issuelist, data);

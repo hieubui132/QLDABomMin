@@ -235,10 +235,6 @@ export default function FileManager() {
         setIsShowTool(true);
       }
     },
-    // getCheckboxProps: (record: ShareFile) => ({
-    //   disabled: record.fileName === "Disabled User", // Column configuration not to be checked
-    //   name: record.fileName,
-    // }),
   };
   const fetchCreateShareFile = async () => {
     try {
