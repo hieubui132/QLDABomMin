@@ -27,6 +27,18 @@ export const getProjectDetail = (id: any) =>
 
 export const addIssue = (data: any) => apiInstance.post(url.url_addIssue, data);
 
+export const getIssueList = (data: any) =>
+  apiInstance.post(url.url_getIssueList, data);
+
+export const getIssueDetail = (id: any) =>
+  apiInstance.get(`${url.url_getIssueDetail}?issueId=${id}`);
+
+export const addComment = (data: any) =>
+  apiInstance.post(url.url_addComment, data);
+
+export const getCommentList = (data: any) =>
+  apiInstance.post(`${url.url_getCommentList}/${data.issueId}`, data);
+
 // PhongNV
 export const getShareFileList = (path: string, projectId: number) =>
   apiInstance.get<ApiResult<ShareFile[]>>(

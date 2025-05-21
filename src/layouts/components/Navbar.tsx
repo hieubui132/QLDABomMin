@@ -8,8 +8,7 @@ import {
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Menu } from "antd";
-import { Link } from "react-router-dom";
-import ProjectSetting from "@/pages/Projects/projectSetting";
+import { Link, useLocation } from "react-router-dom";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -20,6 +19,7 @@ interface NavbarProps {
 const Navbar = ({ projectId }: NavbarProps) => {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  const location = useLocation();
 
   useEffect(() => {
     setItems([
@@ -41,12 +41,12 @@ const Navbar = ({ projectId }: NavbarProps) => {
         icon: <UnorderedListOutlined />,
       },
       {
-        key: "Files",
+        key: `/projects/${projectId}/file`,
         label: <Link to={`/projects/${projectId}/file`}>Files</Link>,
         icon: <FolderOutlined />,
       },
       {
-        key: "ProjectSetting",
+        key: `/projects/${projectId}/projectsetting`,
         label: (
           <Link to={`/projects/${projectId}/projectsetting`}>
             Cài đặt dự án
@@ -61,6 +61,10 @@ const Navbar = ({ projectId }: NavbarProps) => {
   const onClick: MenuProps["onClick"] = (e) => {
     setSelectedKeys([e.key]);
   };
+
+  useEffect(() => {
+    setSelectedKeys([location.pathname]);
+  }, [location.pathname]);
 
   return (
     <div className="fixed top-[50px] left-0 h-full">

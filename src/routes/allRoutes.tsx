@@ -8,7 +8,8 @@ import Dashboard from "@/pages/Dashboard";
 import Home from "@/pages/Home";
 import AddIssue from "@/pages/AddIssue";
 import Issues from "@/pages/Issues";
-import FilesManager from "@/pages/FilesManager";
+import IssueDetail from "@/pages/IssueDetail";
+// import FilesManager from "@/pages/FilesManager";
 
 //Other
 import { type ComponentType } from "react";
@@ -40,6 +41,10 @@ const privateRoutes: Route[] = [
   {
     path: "/projects/:projectId/issues",
     component: Issues,
+  },
+  {
+    path: "/projects/:projectId/issues/:issueId",
+    component: IssueDetail,
   },
   {
     path: "/projects/:projectId/file",
