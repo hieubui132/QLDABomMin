@@ -193,12 +193,12 @@ const ProjectSetting = () => {
   const items = [
     {
       label: `Cài Đặt Chung`,
-      key: 1,
+      key: `1`,
       children: <General />,
     },
     {
       label: `Thành viên`,
-      key: 2,
+      key: `2`,
       children: <Employee></Employee>,
     },
   ];
