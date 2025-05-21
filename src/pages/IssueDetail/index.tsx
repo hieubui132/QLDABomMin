@@ -9,17 +9,30 @@ import {
   Upload,
   Badge,
   Space,
+  Avatar,
+  Modal,
 } from "antd";
 import { useState, useRef, useMemo, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import JoditEditor from "jodit-react";
-import { EditOutlined, InboxOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  InboxOutlined,
+  PlusOutlined,
+  PaperClipOutlined,
+} from "@ant-design/icons";
 import type { UploadProps } from "antd";
 import { statusOptions, riskLevel } from "@/constants/selectOption";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
+import "dayjs/locale/vi";
+import localizedFormat from "dayjs/plugin/localizedFormat";
+dayjs.locale("vi"); // thiết lập ngôn ngữ là tiếng Việt
+dayjs.extend(localizedFormat);
 import { useParams } from "react-router-dom";
 import * as callApi from "@/api/apiClient";
+import parse from "html-react-parser";
+import helper from "@/helpers";
 
 const { Dragger } = Upload;
 const { RangePicker } = DatePicker;
@@ -46,13 +59,16 @@ export default function IssueDetail() {
   const editor = useRef(null);
   const commentEditor = useRef(null);
   const [form] = Form.useForm();
+  const [form2] = Form.useForm();
   const [content, setContent] = useState("");
   const [commentContent, setCommentContent] = useState("");
+  const [commentContent2, setCommentContent2] = useState("");
   const { projectId, issueId } = useParams();
   const [userList, setUserList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editEnabled, setEditEnabled] = useState(false);
   const [commentList, setCommentList] = useState([]);
+  const [open, setOpen] = useState(false);
 
   const props: UploadProps = {
     name: "file",
@@ -75,9 +91,13 @@ export default function IssueDetail() {
         const base64String = reader.result as string;
 
         // Chèn ảnh vào editor
-        setContent(
-          `${content}<img src="${base64String}" alt="Uploaded image" style="max-width: 100%; height: auto;" />`
-        );
+        !open
+          ? setContent(
+              `${content}<img src="${base64String}" alt="Uploaded image" style="max-width: 100%; height: auto;" />`
+            )
+          : setCommentContent2(
+              `${commentContent2}<img src="${base64String}" alt="Uploaded image" style="max-width: 100%; height: auto;" />`
+            );
 
         // Gọi onSuccess để hoàn tất quá trình upload
         onSuccess?.(file);
@@ -170,25 +190,26 @@ export default function IssueDetail() {
     }
   }, [issueId, form]);
 
-  useEffect(() => {
-    const fetchListComment = async () => {
-      try {
-        const res: any = await callApi.getCommentList({
-          orderBy: "",
-          pageNumber: 1,
-          pageSize: 999,
-          issueId: Number(issueId),
-        });
-        if (res.isSuccessded) {
-          // Xử lý danh sách bình luận ở đây
-          setCommentList(res.data.list);
-        } else {
-          setCommentList([]);
-        }
-      } catch (error) {
-        console.error("Error fetching comment list:", error);
+  const fetchListComment = async () => {
+    try {
+      const res: any = await callApi.getCommentList({
+        orderBy: "",
+        pageNumber: 1,
+        pageSize: 999,
+        issueId: Number(issueId),
+      });
+      if (res.isSuccessded) {
+        // Xử lý danh sách bình luận ở đây
+        setCommentList(res.data.list);
+      } else {
+        setCommentList([]);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching comment list:", error);
+    }
+  };
+
+  useEffect(() => {
     fetchListComment();
   }, [issueId]);
 
@@ -216,10 +237,130 @@ export default function IssueDetail() {
     fetchIssueDetail();
   };
 
-  console.log("commentList", commentList);
+  const handlePostComment = async (values: any) => {
+    try {
+      const res: any = await callApi.addComment({
+        issueId: Number(issueId),
+        content: commentContent2,
+        issueDto: {
+          id: Number(issueId),
+          riskDecriptions: content,
+          startDated: dayjs(values.Date[0]).format("YYYY-MM-DDTHH:mm:ss"),
+          endDate: dayjs(values.Date[1]).format("YYYY-MM-DDTHH:mm:ss"),
+          status: Number(values.Status),
+          assigneeId: values.Assignee,
+          likeLiHood: values.LikeLiHood || null,
+          conseQuence: values.ConseQuence || null,
+        },
+      });
+      if (res.isSuccessded) {
+        toast.success("Thêm bình luận thành công!");
+        setOpen(false);
+        form2.resetFields();
+        setCommentContent2("");
+        fetchListComment();
+      } else {
+        toast.error("Thêm bình luận thất bại!");
+      }
+    } catch (error) {
+      console.error("Error adding comment:", error);
+      toast.error("Thêm bình luận thất bại!");
+    }
+  };
 
   return (
     <>
+      <Modal
+        title="Thêm bình luận"
+        open={open}
+        onCancel={() => {
+          setOpen(false);
+        }}
+        width={"70%"}
+        footer={null}
+      >
+        <Form layout="vertical" form={form2} onFinish={handlePostComment}>
+          <Row className="mt-4" gutter={30}>
+            <Col xxl={2}>
+              <div className="h-full flex items-center justify-center">
+                <Upload {...props}>
+                  <Button icon={<PaperClipOutlined />}></Button>
+                </Upload>
+              </div>
+            </Col>
+            <Col xxl={16}>
+              <JoditEditor
+                value={commentContent2}
+                onBlur={(newContent) => setCommentContent2(newContent)}
+                config={{
+                  readonly: false,
+                  placeholder: "Nhập bình luận...",
+                  height: 405,
+                }}
+              />
+            </Col>
+            <Col xxl={6}>
+              <Form.Item name={"Status"} label="Trạng thái">
+                <Select
+                  options={statusOptions.map((item) => {
+                    return {
+                      label: (
+                        <>
+                          <Badge status={item.badgeStatus} />
+                          <span className="ml-2">{item.label}</span>
+                        </>
+                      ),
+                      value: item.value,
+                    };
+                  })}
+                  placeholder="Chọn trạng thái"
+                />
+              </Form.Item>
+              <Form.Item name={"Assignee"} label="Người phụ trách">
+                <Select
+                  placeholder="Chọn người phụ trách"
+                  options={userList}
+                  allowClear
+                />
+              </Form.Item>
+              <Form.Item name={"Date"} label="Thời hạn">
+                <RangePicker
+                  format={"DD/MM/YYYY"}
+                  className="w-full"
+                  allowClear
+                  disabledDate={(current) =>
+                    current && current < dayjs().startOf("day")
+                  }
+                  placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
+                  allowEmpty={[true, true]}
+                />
+              </Form.Item>
+              <Form.Item name={"LikeLiHood"} label="Tác động">
+                <Select
+                  placeholder="Chọn mức độ tác động"
+                  options={riskLevel}
+                  allowClear
+                />
+              </Form.Item>
+              <Form.Item name={"ConseQuence"} label="Khả năng">
+                <Select
+                  placeholder="Chọn khả năng"
+                  options={riskLevel}
+                  allowClear
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <div className="text-end">
+            <Space>
+              <Button>Hủy</Button>
+              <Button type="primary" htmlType="submit">
+                Lưu
+              </Button>
+            </Space>
+          </div>
+        </Form>
+      </Modal>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl mb-2">
           <strong>Chi tiết rủi ro</strong>
@@ -399,11 +540,15 @@ export default function IssueDetail() {
       {!editEnabled && (
         <Card className="rounded-sm">
           <CardContent>
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center">
               <div className="text-lg font-semibold mb-2">
                 Danh sách bình luận
               </div>
-              <Button type="primary" icon={<PlusOutlined />}>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setOpen(true)}
+              >
                 Thêm bình luận
               </Button>
             </div>
@@ -411,12 +556,40 @@ export default function IssueDetail() {
             {commentList.length > 0 &&
               commentList.map((item: any, index) => {
                 return (
-                  <div key={index}>
-                    <p>
-                      <strong>{item.createUser.fullName}</strong>
-                    </p>
-                    <p>{item.lastModifiedDate}</p>
-                    <p>{item.content}</p>
+                  <div
+                    key={index}
+                    className="pb-2 pt-2 border-b border-gray-300"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Avatar
+                          style={{
+                            backgroundColor: "#f56a00",
+                            verticalAlign: "middle",
+                          }}
+                          size="large"
+                          gap={4}
+                        >
+                          {helper.getFirstCharaterOfName(
+                            item.createUser.fullName
+                          )}
+                        </Avatar>
+                        <div className="ml-3">
+                          <h5 className="text-md">
+                            <strong>{item.createUser.fullName}</strong>
+                          </h5>
+                          <span className="text-sm text-gray-500">
+                            {dayjs(item.lastModifiedDate).format(
+                              "DD/MM/YYYY HH:mm:ss"
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                      <Button icon={<EditOutlined />}></Button>
+                    </div>
+                    <div className="html-container ml-[52px]">
+                      {parse(item.content)}
+                    </div>
                   </div>
                 );
               })}
