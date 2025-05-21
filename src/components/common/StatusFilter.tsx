@@ -14,7 +14,7 @@ export default function StatusFilter({
   };
   return (
     <div className="w-full flex">
-      {status.map((x: StatusFilterValue) => (
+      {status.map((x: StatusFilterValue, index) => (
         <span
           onClick={() => clickStatus(x)}
           className={`px-2 py-0.25 rounded-full transition cursor-pointer ${
@@ -22,6 +22,7 @@ export default function StatusFilter({
               ? "bg-emerald-600 text-white"
               : "text-gray-600 hover:text-black"
           }`}
+          key={index}
         >
           {x.name}
         </span>

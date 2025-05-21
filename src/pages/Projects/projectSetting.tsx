@@ -2,6 +2,7 @@ import {
   deleteUserInProject,
   getProjectDetail,
   getUserByProjectId,
+  addProject,
 } from "@/api/apiClient";
 import StatusFilter from "@/components/common/StatusFilter";
 import type { StatusFilterValue } from "@/interfaces/Components/StatusFilterValue";
@@ -28,7 +29,7 @@ import {
 import { Form } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import AddUserToProjectModal from "./Modal/addUserToProjectModal";
 import type { ProjectUserActionDto } from "@/interfaces/Project/ProjectUserActionDto";
 import { toast } from "react-toastify";
@@ -96,11 +97,39 @@ const ProjectSetting = () => {
 
 const General = () => {
   const [form] = Form.useForm();
-  const handleAddIssue = async (values: any) => {
+  const { projectId } = useParams();
+  const [detail, setDetail] = useState(null);
+
+  useEffect(() => {
+    const fetchProject = async () => {
+      try {
+        const result: any = await getProjectDetail(Number(projectId));
+        if (result.isSuccessded) {
+          setDetail(result.data);
+        }
+      } catch (ex) {
+        console.error(ex);
+      }
+    };
+    fetchProject();
+  }, [projectId]);
+
+  const handleUpdateProject = async (values: any) => {
     try {
-      console.log("xx", values);
+      const res: any = await addProject({
+        ...(detail ?? {}),
+        projectName: values.projectName,
+      });
+      if (res.isSuccessded) {
+        toast.success("Cập nhật thành công");
+        form.resetFields();
+        window.location.reload();
+      } else {
+        toast.error("Cập nhật thất bại");
+      }
     } catch (error) {
       console.error("Error adding issue:", error);
+      toast.error("Cập nhật thất bại");
     }
   };
   return (
@@ -108,9 +137,9 @@ const General = () => {
       <h1 className="text-xl mb-2">
         <strong>Cài đặt chung</strong>
       </h1>
-      <Form onFinish={handleAddIssue} form={form}>
+      <Form onFinish={handleUpdateProject} form={form}>
+        <label>Tên dự án</label>
         <Form.Item name="projectName">
-          <label>Tên dự án</label>
           <Input placeholder="Tên dự án" />
         </Form.Item>
         <div className="">
@@ -261,14 +290,16 @@ const Employee = ({ projectId }) => {
         </Flex>
         <Flex gap="small">
           <Button
-            icon={<FontAwesomeIcon icon={faUsers}></FontAwesomeIcon>}
+            icon={<FontAwesomeIcon icon={faUsers} />}
             onClick={showModalChoiceUser}
+            type="primary"
           >
             Thêm Thành Viên
           </Button>
           <Button
-            icon={<FontAwesomeIcon icon={faUserPlus}></FontAwesomeIcon>}
+            icon={<FontAwesomeIcon icon={faUserPlus} />}
             onClick={() => setIsModalAddUser(true)}
+            type="primary"
           >
             Thêm Người Dùng Mới
           </Button>

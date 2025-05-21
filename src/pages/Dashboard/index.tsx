@@ -1,4 +1,15 @@
-import { Row, Col, Button, Modal, Form, Input } from "antd";
+import {
+  Row,
+  Col,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Card as AntdCard,
+  Avatar,
+  Tag,
+  Space,
+} from "antd";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -107,6 +118,68 @@ const Dashboard = () => {
           <h2 className="text-xl mb-2">
             <strong>Cập nhật</strong>
           </h2>
+          <Space
+            direction="vertical"
+            size={16}
+            className="w-full overflow-y-auto"
+          >
+            <AntdCard title="Tue May. 20, 2025" className="shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center">
+                  <Avatar
+                    style={{
+                      backgroundColor: "#f56a00",
+                      verticalAlign: "middle",
+                    }}
+                    size="large"
+                    gap={4}
+                  >
+                    H
+                  </Avatar>
+                  <div className="ml-2">
+                    <span>
+                      <strong>
+                        HieuBC <Tag color="#4CAF93">updated</Tag>the issue
+                      </strong>
+                    </span>
+                  </div>
+                </div>
+                <span className="text-xs">a day ago</span>
+              </div>
+              <div className="ml-[50px]">
+                <p>RPHBOMTNHTHIBINH-2 test</p>
+                <p>[ Resolution: Invalid ]</p>
+              </div>
+            </AntdCard>
+            <AntdCard title="Tue May. 20, 2025" className="shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center">
+                  <Avatar
+                    style={{
+                      backgroundColor: "#f56a00",
+                      verticalAlign: "middle",
+                    }}
+                    size="large"
+                    gap={4}
+                  >
+                    H
+                  </Avatar>
+                  <div className="ml-2">
+                    <span>
+                      <strong>
+                        HieuBC <Tag color="#4CAF93">updated</Tag>the issue
+                      </strong>
+                    </span>
+                  </div>
+                </div>
+                <span className="text-xs">a day ago</span>
+              </div>
+              <div className="ml-[50px]">
+                <p>RPHBOMTNHTHIBINH-2 test</p>
+                <p>[ Resolution: Invalid ]</p>
+              </div>
+            </AntdCard>
+          </Space>
         </Col>
       </Row>
     </>

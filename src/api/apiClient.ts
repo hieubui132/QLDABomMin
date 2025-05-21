@@ -39,6 +39,11 @@ export const addComment = (data: any) =>
 export const getCommentList = (data: any) =>
   apiInstance.post(`${url.url_getCommentList}/${data.issueId}`, data);
 
+export const addProject = (data: any) =>
+  apiInstance.post(url.url_addProject, data);
+
+export const addUser = (data: any) => apiInstance.post(url.url_addUser, data);
+
 // PhongNV
 export const getShareFileList = (path: string, projectId: number) =>
   apiInstance.get<ApiResult<ShareFile[]>>(

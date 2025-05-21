@@ -22,6 +22,12 @@ export const url_addComment = "/api/issues/comment";
 //Lấy danh sách bình luận
 export const url_getCommentList = "/api/issues/listcomment";
 
+//Thêm mới dự án
+export const url_addProject = "/api/projects/upsert";
+
+//Thêm mới người dùng
+export const url_addUser = "/api/users/upsert";
+
 //Phongnv
 export const url_getShareFile = "/api/filedatas/listsharefile/";
 export const url_createShareFile = "/api/filedatas/createfolder";

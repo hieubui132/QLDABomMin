@@ -1,6 +1,9 @@
 import { Button, Form, Input, Modal } from "antd";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { useState } from "react";
+import { addUser } from "@/api/apiClient";
+import { toast } from "react-toastify";
+
 interface UpsertUserProps {
   isOpen: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -10,14 +13,24 @@ const UpsertUser = ({ isOpen, setOpen }: UpsertUserProps) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState<boolean>(false);
   const handle = async (values: any) => {
+    setLoading(true);
     try {
-      setLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      setLoading(false);
-      setOpen(false);
-      console.log("xx", values);
+      const res: any = await addUser({
+        email: values.email,
+        passWord: values.password,
+        fullName: values.fullname,
+      });
+      if (res.isSuccessded) {
+        toast.success("Thêm mới người dùng thành công");
+        form.resetFields();
+        setOpen(false);
+      } else {
+        toast.error("Thêm mới người dùng thất bại");
+      }
     } catch (error) {
       console.error("Error adding issue:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -37,7 +50,6 @@ const UpsertUser = ({ isOpen, setOpen }: UpsertUserProps) => {
       <Modal
         width={500}
         title="Thêm mới người dùng"
-        closable={{ "aria-label": "Custom Close Button" }}
         onCancel={() => setOpen(false)}
         open={isOpen}
         footer={false}
@@ -97,7 +109,7 @@ const UpsertUser = ({ isOpen, setOpen }: UpsertUserProps) => {
               }
             />
           </Form.Item>
-          <div className="flex items-center justify-center ">
+          <div className="text-end">
             <Button type="primary" htmlType="submit" loading={loading}>
               Thêm mới
             </Button>
