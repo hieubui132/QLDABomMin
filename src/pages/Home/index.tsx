@@ -45,18 +45,22 @@ const Home = () => {
   return (
     <div className="">
       <div>{/* <RiskMatrix></RiskMatrix> */}</div>
-      <Row gutter={16}>
+      <Row gutter={16} className="mb-10">
         <Col span={12}>
-          <div className=" overflow-x-auto w-full">
-            <h2 className="text-xl font-bold mb-4">Ma trận Rủi ro</h2>
-            <RiskMatrix></RiskMatrix>
-          </div>
+          <h2 className="text-xl font-bold mb-4">Ma trận Rủi ro</h2>
+          <Card>
+            <div className=" overflow-x-auto h-full w-full">
+              <RiskMatrix issues={issues}></RiskMatrix>
+            </div>
+          </Card>
         </Col>
         <Col span={12}>
-          <div className=" overflow-x-auto w-full">
-            <h2 className="text-xl font-bold mb-4">Khu vực rủi ro</h2>
-            <MapRisk issues={issues}></MapRisk>
-          </div>
+          <h2 className="text-xl font-bold mb-4">Khu vực rủi ro</h2>
+          <Card>
+            <div className=" overflow-x-auto w-full">
+              <MapRisk issues={issues}></MapRisk>
+            </div>
+          </Card>
         </Col>
       </Row>
       <Row gutter={30}>

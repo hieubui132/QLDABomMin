@@ -110,7 +110,7 @@ const MapRisk: React.FC<MapRiskProps> = ({ issues }: MapRiskProps) => {
   const markerRef = useRef<Map | null>(null);
   useEffect(() => {
     fecthProject();
-  }, []);
+  }, [projectId]);
   const fecthProject = async () => {
     try {
       const result = await getProjectDetail(projectId);
