@@ -59,10 +59,17 @@ export const deleteShareFile = (data: PickFolderDto) =>
 export const downloadZip = (data: PickFolderDto, config?: AxiosRequestConfig) =>
   apiInstance.post<any>(url.url_downloadZip, data, config);
 
-export const getUserByProjectId = (projectId: number, role?: number) => {
+export const getUserByProjectId = (
+  projectId: number,
+  role?: number,
+  searchTerm?: string
+) => {
   let urlGet = url.url_getUserByProjectId + `?projectId=${projectId}`;
   if (role) {
     urlGet = urlGet + `&role=${role}`;
+  }
+  if (searchTerm) {
+    urlGet = urlGet + `&searchTerm=${searchTerm}`;
   }
   return apiInstance.get<ApiResult<ProjectUserDto[]>>(urlGet);
 };
