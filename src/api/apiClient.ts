@@ -77,5 +77,5 @@ export const addUserInProject = (data: ProjectUserDto[]) =>
 export const deleteUserInProject = (data: ProjectUserActionDto) =>
   apiInstance.post<ApiResult<boolean>>(url.url_deleteUserInProject, data);
 
-export const getIssueList = (data: IssueCondition) =>
+export const getIssueListP = (data: IssueCondition) =>
   apiInstance.post<ApiResult<PageList<IssueDto>>>(url.url_issuelist, data);

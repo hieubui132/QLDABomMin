@@ -5,7 +5,7 @@ import RiskMatrix from "./RiskMatrix";
 import MapRisk from "./MapRisk";
 import type { IssueCondition } from "@/interfaces/Issue/Condition/IssueCondition";
 import { useParams } from "react-router-dom";
-import { getIssueList } from "@/api/apiClient";
+import { getIssueListP } from "@/api/apiClient";
 import { useEffect, useState } from "react";
 import type { IssueDto } from "@/interfaces/Issue/IssueDto";
 // import { statusOptions } from "@/constants/selectOption";
@@ -21,7 +21,7 @@ const Home = () => {
         pageSize: 10000,
         pageNumber: 1,
       };
-      const result = await getIssueList(condition);
+      const result = await getIssueListP(condition);
       if (result.isSuccessded) {
         const res = result.data?.list.map((x) => {
           if (x.likeLiHood == undefined || x.conseQuence == undefined) {
