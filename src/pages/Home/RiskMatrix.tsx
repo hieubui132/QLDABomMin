@@ -127,7 +127,13 @@ const RiskMatrix: React.FC<MarkercoutProps> = ({ issues }: MarkercoutProps) => {
   }, [issues]);
 
   const impactLevels = ["Rất thấp", "Thấp", "Trung bình", "Cao", "Rất cao"];
-  const likelihoodLevels = ["Hiếm", "Thấp", "Vừa", "Cao", "Rất cao"];
+  const likelihoodLevels = [
+    "Rất nhỏ",
+    "Nhỏ",
+    "Trung bình",
+    "Nghiêm trọng",
+    "Thảm họa",
+  ];
 
   const getRiskColor = (impactIdx: number, likelihoodIdx: number) => {
     const score = (impactIdx + 1) * (likelihoodIdx + 1);

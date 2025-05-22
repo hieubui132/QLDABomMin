@@ -22,7 +22,11 @@ import {
   PaperClipOutlined,
 } from "@ant-design/icons";
 import type { UploadProps } from "antd";
-import { statusOptions, riskLevel } from "@/constants/selectOption";
+import {
+  ConseQuenceType,
+  LikeLiHoodType,
+  statusOptions,
+} from "@/constants/selectOption";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import "dayjs/locale/vi";
@@ -72,7 +76,7 @@ export default function IssueDetail() {
   const [editEnabled, setEditEnabled] = useState(false);
   const [commentList, setCommentList] = useState([]);
   const [open, setOpen] = useState(false);
-  const [issue, setIssue] = useState(null);
+  const [issue, setIssue] = useState<any>(null);
 
   const props: UploadProps = {
     name: "file",
@@ -379,14 +383,14 @@ export default function IssueDetail() {
               <Form.Item name={"LikeLiHood"} label="Tác động">
                 <Select
                   placeholder="Chọn mức độ tác động"
-                  options={riskLevel}
+                  options={LikeLiHoodType}
                   allowClear
                 />
               </Form.Item>
               <Form.Item name={"ConseQuence"} label="Khả năng">
                 <Select
                   placeholder="Chọn khả năng"
-                  options={riskLevel}
+                  options={ConseQuenceType}
                   allowClear
                 />
               </Form.Item>
@@ -514,7 +518,7 @@ export default function IssueDetail() {
                   >
                     <Select
                       placeholder="Chọn mức độ tác động"
-                      options={riskLevel}
+                      options={LikeLiHoodType}
                       allowClear
                       disabled={!editEnabled}
                     />
@@ -528,7 +532,7 @@ export default function IssueDetail() {
                   >
                     <Select
                       placeholder="Chọn khả năng"
-                      options={riskLevel}
+                      options={ConseQuenceType}
                       allowClear
                       disabled={!editEnabled}
                     />
@@ -616,7 +620,21 @@ export default function IssueDetail() {
                 <Col span={12}>
                   <div className="border-gray-300 border-b p-4 flex">
                     <span className="w-[200px]">Trạng thái: </span>
-                    <span>{issue?.status}</span>
+
+                    <span
+                      style={{
+                        background: `${
+                          statusOptions.find((x) => x.value == issue?.status)
+                            ?.color
+                        }`,
+                      }}
+                      className={`px-2 py-0.25 flex justify-center w-[120px] rounded-full transition cursor-pointer text-white`}
+                    >
+                      {
+                        statusOptions.find((x) => x.value == issue?.status)
+                          ?.label
+                      }
+                    </span>
                   </div>
                   <div className="border-gray-300 border-b flex items-center p-4">
                     <span className="w-[200px]">Người phụ trách: </span>
@@ -654,11 +672,22 @@ export default function IssueDetail() {
                   </div>
                   <div className="border-gray-300 border-b p-4 flex">
                     <span className="w-[200px]">Tác động: </span>
-                    <span>{issue?.likeLiHood}</span>
+                    <span>
+                      {
+                        LikeLiHoodType.find((x) => x.value == issue?.likeLiHood)
+                          ?.label
+                      }
+                    </span>
                   </div>
                   <div className="border-gray-300 border-b p-4 flex">
                     <span className="w-[200px]">Khả năng: </span>
-                    <span>{issue?.conseQuence}</span>
+                    <span>
+                      {
+                        ConseQuenceType.find(
+                          (x) => x.value == issue?.conseQuence
+                        )?.label
+                      }
+                    </span>
                   </div>
                 </Col>
               </Row>

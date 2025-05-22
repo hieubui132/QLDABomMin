@@ -4,6 +4,7 @@ interface OptionType {
   label: string;
   value: string | number;
   badgeStatus?: BadgeStatus;
+  color?: string;
 }
 
 export const statusOptions: OptionType[] = [
@@ -11,27 +12,31 @@ export const statusOptions: OptionType[] = [
     badgeStatus: "warning",
     label: "Mở",
     value: "0",
+    color: "#ed8077",
   },
   {
     badgeStatus: "processing",
     label: "Đang thực hiện",
     value: "1",
+    color: "#4488c5",
   },
   {
     badgeStatus: "success",
     label: "Hoàn thành",
     value: "2",
+    color: "#5eb5a6",
   },
   {
     badgeStatus: "error",
     label: "Đóng",
     value: "3",
+    color: "#a1af2f",
   },
 ];
 
-export const riskLevel: OptionType[] = [
+export const ConseQuenceType: OptionType[] = [
   {
-    label: "Hiếm",
+    label: "Rất thấp",
     value: 1,
   },
   {
@@ -39,7 +44,7 @@ export const riskLevel: OptionType[] = [
     value: 2,
   },
   {
-    label: "Vừa",
+    label: "Trung bình",
     value: 3,
   },
   {
@@ -48,6 +53,29 @@ export const riskLevel: OptionType[] = [
   },
   {
     label: "Rất cao",
+    value: 5,
+  },
+];
+
+export const LikeLiHoodType: OptionType[] = [
+  {
+    label: "Rất nhỏ",
+    value: 1,
+  },
+  {
+    label: "Nhỏ",
+    value: 2,
+  },
+  {
+    label: "Trung bình",
+    value: 3,
+  },
+  {
+    label: "Nghiêm trọng",
+    value: 4,
+  },
+  {
+    label: "Thảm họa",
     value: 5,
   },
 ];
