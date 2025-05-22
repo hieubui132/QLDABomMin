@@ -47,7 +47,7 @@ export default function DefaultLayout({
               </Button>
             </div> */}
           </div>
-          <div className="p-[20px]">{children}</div>
+          <div className="p-[20px] relative ">{children}</div>
         </main>
       </div>
     </React.Fragment>

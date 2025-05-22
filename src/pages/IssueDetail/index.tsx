@@ -33,6 +33,9 @@ import { useParams } from "react-router-dom";
 import * as callApi from "@/api/apiClient";
 import parse from "html-react-parser";
 import helper from "@/helpers";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { Car } from "lucide-react";
 
 const { Dragger } = Upload;
 const { RangePicker } = DatePicker;
@@ -69,6 +72,7 @@ export default function IssueDetail() {
   const [editEnabled, setEditEnabled] = useState(false);
   const [commentList, setCommentList] = useState([]);
   const [open, setOpen] = useState(false);
+  const [issue, setIssue] = useState(null);
 
   const props: UploadProps = {
     name: "file",
@@ -120,13 +124,23 @@ export default function IssueDetail() {
 
   const handleUpdateIssue = async (values: any) => {
     setLoading(true);
+    let startDate: string | undefined = undefined;
+    let endDate: string | undefined = undefined;
+    if (values.Date != undefined) {
+      if (values.Date[0] != undefined) {
+        startDate = dayjs(values.Date[0]).format("YYYY-MM-DDTHH:mm:ss");
+      }
+      if (values.Date[1] != undefined) {
+        endDate = dayjs(values.Date[1]).format("YYYY-MM-DDTHH:mm:ss");
+      }
+    }
     try {
       const formData = {
         id: Number(issueId),
         issueName: values.Title,
         riskDecriptions: content,
-        startDated: dayjs(values.Date[0]).format("YYYY-MM-DDTHH:mm:ss"),
-        endDate: dayjs(values.Date[1]).format("YYYY-MM-DDTHH:mm:ss"),
+        startDated: startDate,
+        endDate: endDate,
         status: Number(values.Status),
         likeLiHood: values.LikeLiHood || null,
         conseQuence: values.ConseQuence || null,
@@ -135,24 +149,24 @@ export default function IssueDetail() {
         assigneeId: values.Assignee,
         projectId: Number(projectId),
       };
-      const [res, res2]: [any, any] = await Promise.all([
+      const [res]: [any] = await Promise.all([
         callApi.addIssue(formData),
-        callApi.addComment({
-          issueId: Number(issueId),
-          content: commentContent,
-          issueDto: {
-            id: Number(issueId),
-            riskDecriptions: content,
-            startDated: dayjs(values.Date[0]).format("YYYY-MM-DDTHH:mm:ss"),
-            endDate: dayjs(values.Date[1]).format("YYYY-MM-DDTHH:mm:ss"),
-            status: Number(values.Status),
-            assigneeId: values.Assignee,
-            likeLiHood: values.LikeLiHood || null,
-            conseQuence: values.ConseQuence || null,
-          },
-        }),
+        // callApi.addComment({
+        //   issueId: Number(issueId),
+        //   content: commentContent,
+        //   issueDto: {
+        //     id: Number(issueId),
+        //     riskDecriptions: content,
+        //     startDated: dayjs(values.Date[0]).format("YYYY-MM-DDTHH:mm:ss"),
+        //     endDate: dayjs(values.Date[1]).format("YYYY-MM-DDTHH:mm:ss"),
+        //     status: Number(values.Status),
+        //     assigneeId: values.Assignee,
+        //     likeLiHood: values.LikeLiHood || null,
+        //     conseQuence: values.ConseQuence || null,
+        //   },
+        // }),
       ]);
-      if (res.isSuccessded && res2.isSuccessded) {
+      if (res.isSuccessded) {
         toast.success("Cập nhật rủi ro thành công!");
         fetchIssueDetail();
       } else {
@@ -217,11 +231,26 @@ export default function IssueDetail() {
     try {
       const res: any = await callApi.getIssueDetail(Number(issueId));
       if (res.isSuccessded) {
+        setIssue(res.data);
         form.setFieldsValue({
           Title: res.data.issueName,
           Status: String(res.data.status),
           Assignee: res.data.assigneeId,
-          Date: [dayjs(res.data.startDated), dayjs(res.data.endDate)],
+          Date: [
+            res.data.startDated ? dayjs(res.data.startDated) : undefined,
+            res.data.endDate ? dayjs(res.data.endDate) : undefined,
+          ],
+          LikeLiHood: res.data.likeLiHood,
+          ConseQuence: res.data.conseQuence,
+        });
+
+        form2.setFieldsValue({
+          Status: String(res.data.status),
+          Assignee: res.data.assigneeId,
+          Date: [
+            res.data.startDated ? dayjs(res.data.startDated) : undefined,
+            res.data.endDate ? dayjs(res.data.endDate) : undefined,
+          ],
           LikeLiHood: res.data.likeLiHood,
           ConseQuence: res.data.conseQuence,
         });
@@ -239,14 +268,26 @@ export default function IssueDetail() {
 
   const handlePostComment = async (values: any) => {
     try {
+      // xử lý schedule
+      let startDate: string | undefined = undefined;
+      let endDate: string | undefined = undefined;
+      if (values.Date != undefined) {
+        if (values.Date[0] != undefined) {
+          startDate = dayjs(values.Date[0]).format("YYYY-MM-DDTHH:mm:ss");
+        }
+        if (values.Date[1] != undefined) {
+          endDate = dayjs(values.Date[1]).format("YYYY-MM-DDTHH:mm:ss");
+        }
+      }
+
       const res: any = await callApi.addComment({
         issueId: Number(issueId),
         content: commentContent2,
         issueDto: {
           id: Number(issueId),
           riskDecriptions: content,
-          startDated: dayjs(values.Date[0]).format("YYYY-MM-DDTHH:mm:ss"),
-          endDate: dayjs(values.Date[1]).format("YYYY-MM-DDTHH:mm:ss"),
+          startDated: startDate,
+          endDate: endDate,
           status: Number(values.Status),
           assigneeId: values.Assignee,
           likeLiHood: values.LikeLiHood || null,
@@ -256,7 +297,7 @@ export default function IssueDetail() {
       if (res.isSuccessded) {
         toast.success("Thêm bình luận thành công!");
         setOpen(false);
-        form2.resetFields();
+        fetchIssueDetail();
         setCommentContent2("");
         fetchListComment();
       } else {
@@ -363,151 +404,152 @@ export default function IssueDetail() {
       </Modal>
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl mb-2">
-          <strong>Chi tiết rủi ro</strong>
+          {!editEnabled && <strong>{issue?.issueName}</strong>}
         </h1>
         <Button icon={<EditOutlined />} onClick={() => setEditEnabled(true)}>
           Chỉnh sửa
         </Button>
       </div>
-      <Form onFinish={handleUpdateIssue} form={form}>
-        <Form.Item
-          name={"Title"}
-          rules={[{ required: true, message: "Vui lòng nhập tiêu đề" }]}
-        >
-          <Input placeholder="Tiêu đề" disabled={!editEnabled} />
-        </Form.Item>
-        <Card className="rounded-sm mb-4 pb-0">
-          <CardContent>
-            <JoditEditor
-              ref={editor}
-              value={content}
-              config={config}
-              tabIndex={1} // tabIndex of textarea
-              onBlur={(newContent) => setContent(newContent)} // preferred to use only this option to update the content for performance reasons
-            />
-            <Row className="mt-4" gutter={50}>
-              <Col xxl={12} xs={24}>
-                <Form.Item
-                  name={"Status"}
-                  initialValue={"0"}
-                  label="Trạng thái"
-                  labelAlign="left"
-                  labelCol={{ span: 8 }}
-                  wrapperCol={{ span: 8 }}
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng chọn trạng thái",
-                    },
-                  ]}
-                >
-                  <Select
-                    options={statusOptions.map((item) => {
-                      return {
-                        label: (
-                          <>
-                            <Badge status={item.badgeStatus} />
-                            <span className="ml-2">{item.label}</span>
-                          </>
-                        ),
-                        value: item.value,
-                      };
-                    })}
-                    disabled={!editEnabled}
-                  />
-                </Form.Item>
-                <Form.Item
-                  name={"Assignee"}
-                  label="Người phụ trách"
-                  labelAlign="left"
-                  labelCol={{ span: 8 }}
-                  wrapperCol={{ span: 8 }}
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng chọn người phụ trách",
-                    },
-                  ]}
-                >
-                  <Select
-                    placeholder="Chọn người phụ trách"
-                    options={userList}
-                    allowClear
-                    disabled={!editEnabled}
-                  />
-                </Form.Item>
-              </Col>
-              <Col xxl={12} xs={24}>
-                <Form.Item
-                  name={"Date"}
-                  label="Thời hạn"
-                  labelAlign="left"
-                  labelCol={{ span: 8 }}
-                  wrapperCol={{ span: 10 }}
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng chọn ngày bắt đầu và ngày kết thúc",
-                    },
-                  ]}
-                >
-                  <RangePicker
-                    format={"DD/MM/YYYY"}
-                    className="w-full"
-                    allowClear
-                    disabledDate={(current) =>
-                      current && current < dayjs().startOf("day")
-                    }
-                    placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
-                    allowEmpty={[true, true]}
-                    disabled={!editEnabled}
-                  />
-                </Form.Item>
-                <Form.Item
-                  name={"LikeLiHood"}
-                  label="Tác động"
-                  labelAlign="left"
-                  labelCol={{ span: 8 }}
-                  wrapperCol={{ span: 10 }}
-                >
-                  <Select
-                    placeholder="Chọn mức độ tác động"
-                    options={riskLevel}
-                    allowClear
-                    disabled={!editEnabled}
-                  />
-                </Form.Item>
-                <Form.Item
-                  name={"ConseQuence"}
-                  label="Khả năng"
-                  labelAlign="left"
-                  labelCol={{ span: 8 }}
-                  wrapperCol={{ span: 10 }}
-                >
-                  <Select
-                    placeholder="Chọn khả năng"
-                    options={riskLevel}
-                    allowClear
-                    disabled={!editEnabled}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-          </CardContent>
-        </Card>
-        {editEnabled && (
-          <>
-            <Form.Item>
-              <Dragger {...props}>
-                <p className="ant-upload-drag-icon">
-                  <InboxOutlined />
-                </p>
-                <p className="ant-upload-text">
-                  Nhấp hoặc kéo ảnh vào đây để tải ảnh lên
-                </p>
-              </Dragger>
-            </Form.Item>
-            <div className="mb-2">
+      {editEnabled && (
+        <Form onFinish={handleUpdateIssue} form={form}>
+          <Form.Item
+            name={"Title"}
+            rules={[{ required: true, message: "Vui lòng nhập tiêu đề" }]}
+          >
+            <Input placeholder="Tiêu đề" disabled={!editEnabled} />
+          </Form.Item>
+          <Card className="rounded-sm mb-4 pb-0">
+            <CardContent>
+              <JoditEditor
+                ref={editor}
+                value={content}
+                config={config}
+                tabIndex={1} // tabIndex of textarea
+                onBlur={(newContent) => setContent(newContent)} // preferred to use only this option to update the content for performance reasons
+              />
+              <Row className="mt-4" gutter={50}>
+                <Col xxl={12} xs={24}>
+                  <Form.Item
+                    name={"Status"}
+                    initialValue={"0"}
+                    label="Trạng thái"
+                    labelAlign="left"
+                    labelCol={{ span: 8 }}
+                    wrapperCol={{ span: 8 }}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn trạng thái",
+                      },
+                    ]}
+                  >
+                    <Select
+                      options={statusOptions.map((item) => {
+                        return {
+                          label: (
+                            <>
+                              <Badge status={item.badgeStatus} />
+                              <span className="ml-2">{item.label}</span>
+                            </>
+                          ),
+                          value: item.value,
+                        };
+                      })}
+                      disabled={!editEnabled}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    name={"Assignee"}
+                    label="Người phụ trách"
+                    labelAlign="left"
+                    labelCol={{ span: 8 }}
+                    wrapperCol={{ span: 8 }}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn người phụ trách",
+                      },
+                    ]}
+                  >
+                    <Select
+                      placeholder="Chọn người phụ trách"
+                      options={userList}
+                      allowClear
+                      disabled={!editEnabled}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col xxl={12} xs={24}>
+                  <Form.Item
+                    name={"Date"}
+                    label="Thời hạn"
+                    labelAlign="left"
+                    labelCol={{ span: 8 }}
+                    wrapperCol={{ span: 10 }}
+                    // rules={[
+                    //   {
+                    //     required: true,
+                    //     message: "Vui lòng chọn ngày bắt đầu và ngày kết thúc",
+                    //   },
+                    // ]}
+                  >
+                    <RangePicker
+                      format={"DD/MM/YYYY"}
+                      className="w-full"
+                      allowClear
+                      disabledDate={(current) =>
+                        current && current < dayjs().startOf("day")
+                      }
+                      placeholder={["Ngày bắt đầu", "Ngày kết thúc"]}
+                      allowEmpty={[true, true]}
+                      disabled={!editEnabled}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    name={"LikeLiHood"}
+                    label="Tác động"
+                    labelAlign="left"
+                    labelCol={{ span: 8 }}
+                    wrapperCol={{ span: 10 }}
+                  >
+                    <Select
+                      placeholder="Chọn mức độ tác động"
+                      options={riskLevel}
+                      allowClear
+                      disabled={!editEnabled}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    name={"ConseQuence"}
+                    label="Khả năng"
+                    labelAlign="left"
+                    labelCol={{ span: 8 }}
+                    wrapperCol={{ span: 10 }}
+                  >
+                    <Select
+                      placeholder="Chọn khả năng"
+                      options={riskLevel}
+                      allowClear
+                      disabled={!editEnabled}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </CardContent>
+          </Card>
+          {editEnabled && (
+            <>
+              <Form.Item>
+                <Dragger {...props}>
+                  <p className="ant-upload-drag-icon">
+                    <InboxOutlined />
+                  </p>
+                  <p className="ant-upload-text">
+                    Nhấp hoặc kéo ảnh vào đây để tải ảnh lên
+                  </p>
+                </Dragger>
+              </Form.Item>
+              {/* <div className="mb-2">
               <p className="text-lg font-semibold mb-2">Bình luận</p>
               <JoditEditor
                 ref={commentEditor}
@@ -520,25 +562,123 @@ export default function IssueDetail() {
                   buttons: editorButtons,
                 }}
               />
-            </div>
-            <div className="text-end">
-              <Space>
-                <Button onClick={handleCancel}>Hủy</Button>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  className="w-50"
-                  loading={loading}
-                >
-                  Lưu chỉnh sửa
-                </Button>
-              </Space>
-            </div>
-          </>
-        )}
-      </Form>
+            </div> */}
+              <div className="text-end">
+                <Space>
+                  <Button onClick={handleCancel}>Hủy</Button>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    className="w-50"
+                    loading={loading}
+                  >
+                    Lưu chỉnh sửa
+                  </Button>
+                </Space>
+              </div>
+            </>
+          )}
+        </Form>
+      )}
       {!editEnabled && (
-        <Card className="rounded-sm">
+        <Card className="bg-card text-card-foreground flex flex-col gap-6 border py-6 shadow-sm rounded-sm mb-[80px]">
+          <CardContent>
+            <div className={`pb-2 pt-2  border-gray-300`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Avatar
+                    style={{
+                      backgroundColor: "#f56a00",
+                      verticalAlign: "middle",
+                    }}
+                    size="large"
+                    gap={4}
+                  >
+                    {helper.getFirstCharaterOfName(
+                      issue?.CreatedUser?.fullName ?? "No Name"
+                    )}
+                  </Avatar>
+                  <div className="ml-3">
+                    <h5 className="text-md">
+                      <strong>{issue?.createdUser?.fullName}</strong>
+                    </h5>
+                    <span className="text-sm text-gray-500">
+                      {dayjs(issue?.createdDate).format("DD/MM/YYYY")}
+                    </span>
+                  </div>
+                </div>
+                <Button icon={<EditOutlined />}></Button>
+              </div>
+              <div className="html-container ml-[52px]">
+                {parse(issue?.riskDecriptions ?? "loading..")}
+              </div>
+              <Row gutter={30}>
+                <Col span={12}>
+                  <div className="border-gray-300 border-b p-4 flex">
+                    <span className="w-[200px]">Trạng thái: </span>
+                    <span>{issue?.status}</span>
+                  </div>
+                  <div className="border-gray-300 border-b flex items-center p-4">
+                    <span className="w-[200px]">Người phụ trách: </span>
+                    <Avatar
+                      style={{
+                        backgroundColor: "#f56a00",
+                        verticalAlign: "small",
+                      }}
+                      size="small"
+                      gap={4}
+                    >
+                      {helper.getFirstCharaterOfName(
+                        issue?.assignee?.fullName ?? "No Name"
+                      )}
+                    </Avatar>
+                    <h6 className="text-md ml-2">
+                      <span>{issue?.assignee?.fullName}</span>
+                    </h6>
+                  </div>
+                </Col>
+                <Col span={12}>
+                  <div className="border-gray-300 border-b p-4 flex">
+                    <span className="w-[200px]">Thời hạn: </span>
+                    <span>
+                      {issue?.startDated
+                        ? dayjs(issue?.startDated).format("DD/MM/YYYY")
+                        : "null"}
+                    </span>
+                    <span className="ml-1 mr-1">đến</span>
+                    <span>
+                      {issue?.endDate
+                        ? dayjs(issue?.endDate).format("DD/MM/YYYY")
+                        : "null"}
+                    </span>
+                  </div>
+                  <div className="border-gray-300 border-b p-4 flex">
+                    <span className="w-[200px]">Tác động: </span>
+                    <span>{issue?.likeLiHood}</span>
+                  </div>
+                  <div className="border-gray-300 border-b p-4 flex">
+                    <span className="w-[200px]">Khả năng: </span>
+                    <span>{issue?.conseQuence}</span>
+                  </div>
+                </Col>
+              </Row>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      {!editEnabled && (
+        <div className="h-[80px] w-[calc(100%-300px)] fixed bottom-0 z-100 p-4 bg-white drop-shadow-[0_-1px_2px_rgba(0,0,0,0.3)]">
+          <input
+            onClick={() => setOpen(true)}
+            className="w-full p-2 border border-[#999] z-100"
+            placeholder="Comment..."
+            readOnly
+          />
+        </div>
+      )}
+
+      {!editEnabled && (
+        <Card className="rounded-sm mb-[80px]">
           <CardContent>
             <div className="flex justify-between items-center">
               <div className="text-lg font-semibold mb-2">
@@ -555,10 +695,13 @@ export default function IssueDetail() {
             {/* Render danh sách bình luận ở đây */}
             {commentList.length > 0 &&
               commentList.map((item: any, index) => {
+                console.log("aaa", index);
                 return (
                   <div
                     key={index}
-                    className="pb-2 pt-2 border-b border-gray-300"
+                    className={`pb-2 pt-2 ${
+                      index + 1 == commentList.length ? "" : "border-b"
+                    } border-gray-300`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
@@ -579,14 +722,34 @@ export default function IssueDetail() {
                             <strong>{item.createUser.fullName}</strong>
                           </h5>
                           <span className="text-sm text-gray-500">
-                            {dayjs(item.lastModifiedDate).format(
-                              "DD/MM/YYYY HH:mm:ss"
-                            )}
+                            {dayjs(item.lastModifiedDate).format("DD/MM/YYYY")}
                           </span>
                         </div>
                       </div>
                       <Button icon={<EditOutlined />}></Button>
                     </div>
+                    <ul className="space-y-1 text-sm text-gray-700 ml-[52px]">
+                      {item.commentChangeLogs.map((change, index) => (
+                        <li
+                          key={index}
+                          className="flex items-center gap-2 relative"
+                        >
+                          <span className=" h-2 w-2 border-2 rounded-full bg-white border-gray-400"></span>
+                          <span>
+                            <span>{change.fieldName}: </span>
+                            {change.oldValue}
+                            <span className="text-gray-400 ml-1 mr-1">
+                              <FontAwesomeIcon
+                                icon={faArrowRight}
+                              ></FontAwesomeIcon>
+                            </span>
+                            <span>
+                              {!change.newValue ? "Rỗng" : change.newValue}
+                            </span>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
                     <div className="html-container ml-[52px]">
                       {parse(item.content)}
                     </div>
