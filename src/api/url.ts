@@ -45,3 +45,6 @@ export const url_addUserInProject = "/api/projects/adduserinproject";
 export const url_deleteUserInProject = "/api/projects/deleteuserinproject";
 
 export const url_issuelist = "/api/issues/list";
+export const url_getUser = "/api/users/get";
+
+export const url_getProjectUser = "/api/projects/get";

@@ -80,8 +80,8 @@ const MapWrapper: React.FC<MapProps> = ({
       >
         {/* Tile Layer - OpenStreetMap */}
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          url="https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+          subdomains={["mt1", "mt2", "mt3", "mt0"]}
         />
 
         {/* Map Click Handler */}

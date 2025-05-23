@@ -94,3 +94,10 @@ export const deleteUserInProject = (data: ProjectUserActionDto) =>
 
 export const getIssueListP = (data: IssueCondition) =>
   apiInstance.post<ApiResult<PageList<IssueDto>>>(url.url_issuelist, data);
+
+export const getUser = () => apiInstance.get<ApiResult<User>>(url.url_getUser);
+
+export const getProjectUser = (projectId: number) =>
+  apiInstance.get<ApiResult<ProjectUserDto>>(
+    url.url_getProjectUser + `?projectId=${projectId}`
+  );

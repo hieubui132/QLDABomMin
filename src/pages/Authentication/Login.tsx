@@ -28,6 +28,11 @@ export default function Login() {
       const response: any = await callApi.login(data); // Gọi API đăng nhập
       if (response.isSuccessded) {
         localStorage.setItem("authUser", JSON.stringify(response.data)); // Lưu thông tin người dùng vào localStorage
+
+        const userGet = await callApi.getUser();
+        if (userGet.isSuccessded) {
+          localStorage.setItem("userInfo", JSON.stringify(userGet.data));
+        }
         navigate("/dashboard"); // Điều hướng đến trang chính sau khi đăng nhập thành công
       } else {
         toast.error("Sai tên đăng nhập hoặc mật khẩu!"); // Hiển thị thông báo lỗi nếu đăng nhập thất bại

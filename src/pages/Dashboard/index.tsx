@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import Map from "@/components/common/Map";
 import { toast } from "react-toastify";
+import useLocalStorage from "@/hook/UseLocalStorage";
 
 const { RangePicker } = DatePicker;
 
@@ -42,6 +43,7 @@ const Dashboard = () => {
     lat: 0,
     lng: 0,
   });
+  const userInfo = useLocalStorage("userInfo");
 
   useEffect(() => {
     const getData = async () => {
@@ -224,20 +226,22 @@ const Dashboard = () => {
                 <strong>Dự án</strong>
               </h2>
               <DialogTrigger asChild>
-                <Button
-                  type="primary"
-                  icon={<FontAwesomeIcon icon={faPlus} />}
-                  onClick={() => setOpen(true)}
-                >
-                  Thêm dự án
-                </Button>
+                {userInfo?.userRole == 0 && (
+                  <Button
+                    type="primary"
+                    icon={<FontAwesomeIcon icon={faPlus} />}
+                    onClick={() => setOpen(true)}
+                  >
+                    Thêm dự án
+                  </Button>
+                )}
               </DialogTrigger>
             </div>
             {listProject?.length > 0 &&
               listProject.map((item: any, index) => {
                 return (
                   <Card
-                    className="hover:bg-[#4096FF] cursor-pointer hover:text-white transition-all duration-200 mb-2"
+                    className="hover:bg-[#4096FF] cursor-pointer hover:text-white transition-all duration-200 mb-2 rounded-sm	"
                     onClick={() => navigate(`/projects/${item.id}`)}
                     key={index}
                   >

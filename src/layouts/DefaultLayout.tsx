@@ -4,7 +4,8 @@ import Navbar from "@/layouts/components/Navbar";
 import { useParams } from "react-router-dom";
 // import { Button } from "antd";
 import { useEffect, useState } from "react";
-import { getProjectDetail } from "@/api/apiClient";
+import { getProjectDetail, getProjectUser } from "@/api/apiClient";
+import { useProjectUserStore } from "@/store";
 
 export default function DefaultLayout({
   children,
@@ -13,7 +14,8 @@ export default function DefaultLayout({
 }) {
   const { projectId } = useParams();
   const [projectDetail, setProjectDetail] = useState<any>(null);
-
+  const { projectUser, setProjectUser, clearProjectUser } =
+    useProjectUserStore();
   useEffect(() => {
     const getData = async () => {
       try {
@@ -27,6 +29,23 @@ export default function DefaultLayout({
     };
     getData();
   }, [projectId]);
+
+  useEffect(() => {
+    clearProjectUser();
+    const getData = async () => {
+      try {
+        const response: any = await getProjectUser(Number(projectId));
+        if (response.isSuccessded) {
+          setProjectUser(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    getData();
+  }, [projectId]);
+  console.log("kaka", projectUser);
 
   return (
     <React.Fragment>
