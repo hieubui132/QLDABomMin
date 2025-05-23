@@ -28,6 +28,9 @@ export const url_addProject = "/api/projects/upsert";
 //Thêm mới người dùng
 export const url_addUser = "/api/users/upsert";
 
+//Lấy danh sách người dùng
+export const url_getUserList = "/api/users/list";
+
 //Phongnv
 export const url_getShareFile = "/api/filedatas/listsharefile/";
 export const url_createShareFile = "/api/filedatas/createfolder";

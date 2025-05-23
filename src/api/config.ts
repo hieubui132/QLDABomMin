@@ -44,7 +44,18 @@ class ApiClient {
     // Response interceptor
     this.client.interceptors.response.use(
       (response: AxiosResponse) => response?.data ?? response,
-      (error: AxiosError) => Promise.reject(error)
+      (error: AxiosError) => {
+        if (error.response && error.response.status === 401) {
+          // Xử lý lỗi 401 - Unauthorized (ví dụ: hết hạn token)
+          // Có thể điều hướng người dùng đến trang đăng nhập hoặc thực hiện đăng xuất
+          console.log("Token đã hết hạn hoặc không hợp lệ.");
+          // Hoặc xóa token khỏi localStorage
+          localStorage.clear();
+          // Ví dụ: Điều hướng về trang đăng nhập hoặc thực hiện logout
+          window.location.href = "/login"; // Thay đổi điều hướng theo yêu cầu của bạn
+        }
+        return Promise.reject(error);
+      }
     );
   }
 
