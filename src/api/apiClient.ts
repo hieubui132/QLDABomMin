@@ -44,6 +44,9 @@ export const addProject = (data: any) =>
 
 export const addUser = (data: any) => apiInstance.post(url.url_addUser, data);
 
+export const getUsers = (data: any) =>
+  apiInstance.post(url.url_getUserList, data);
+
 // PhongNV
 export const getShareFileList = (path: string, projectId: number) =>
   apiInstance.get<ApiResult<ShareFile[]>>(
